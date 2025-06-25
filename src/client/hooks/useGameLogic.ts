@@ -3,8 +3,19 @@ import { BoardState, CellData, Player, GameState, Move } from '../types/game';
 
 const BOARD_SIZE = 5;
 
-// Extended color palette for more variety
-const COLORS = ['blue', 'green', 'purple', 'pink', 'red', 'orange', 'yellow'];
+// const COLORS = ['blue', 'green', 'purple', 'pink', 'red', 'orange', 'yellow'];
+const COLORS = [
+  '#007BFF', // Bright Blue
+  '#DC3545', // Strong Red
+  '#198754', // Strong Green
+  '#FFC107', // Vivid Yellow
+  '#6610F2', // Strong Purple
+  '#FD7E14', // Bright Orange
+  '#20C997', // Teal
+  '#E83E8C', // Magenta
+  '#17A2B8', // Cyan
+  '#6F42C1', // Dark Purple
+];
 
 const getRandomColors = () => {
   const shuffled = [...COLORS].sort(() => Math.random() - 0.5);
@@ -76,12 +87,11 @@ export const useGameLogic = () => {
 
   const getValidMoves = useCallback((): Move[] => {
     const moves: Move[] = [];
-
     let playerHasOrbs = false;
+
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
-        const cell = board[row][col];
-        if (cell.owner === currentPlayer) {
+        if (board[row][col].owner === currentPlayer) {
           playerHasOrbs = true;
           break;
         }
@@ -92,7 +102,6 @@ export const useGameLogic = () => {
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         const cell = board[row][col];
-
         if (!playerHasOrbs) {
           if (cell.owner === 'empty') {
             moves.push({ row, col });
@@ -108,51 +117,47 @@ export const useGameLogic = () => {
     return moves;
   }, [board, currentPlayer]);
 
-  const processExplosions = useCallback((initialBoard: BoardState): BoardState => {
-    let newBoard = initialBoard.map((row) => row.map((cell) => ({ ...cell })));
-    let hasExplosions = true;
+  const getNextExplosionStep = (state: BoardState): BoardState | null => {
+    const newBoard = state.map((row) => row.map((cell) => ({ ...cell })));
+    const explosions: Move[] = [];
 
-    while (hasExplosions) {
-      hasExplosions = false;
-      const explosions: Move[] = [];
-
-      for (let row = 0; row < BOARD_SIZE; row++) {
-        for (let col = 0; col < BOARD_SIZE; col++) {
-          const cell = newBoard[row][col];
-          if (cell.count >= cell.criticalMass && cell.count > 0) {
-            explosions.push({ row, col });
-          }
-        }
-      }
-
-      if (explosions.length > 0) {
-        hasExplosions = true;
-
-        for (const { row, col } of explosions) {
-          const explodingCell = newBoard[row][col];
-          const neighbors = getNeighbors(row, col);
-          const explodingPlayer = explodingCell.owner;
-
-          explodingCell.count = 0;
-          explodingCell.owner = 'empty';
-
-          for (const neighbor of neighbors) {
-            const neighborCell = newBoard[neighbor.row][neighbor.col];
-            neighborCell.count += 1;
-            neighborCell.owner = explodingPlayer;
-          }
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        if (
+          newBoard[row][col].count >= newBoard[row][col].criticalMass &&
+          newBoard[row][col].count > 0
+        ) {
+          explosions.push({ row, col });
         }
       }
     }
 
-    return newBoard;
-  }, []);
+    if (explosions.length === 0) {
+      return null;
+    }
 
-  const checkWinCondition = useCallback((board: BoardState): Player | null => {
+    for (const { row, col } of explosions) {
+      const explodingCell = newBoard[row][col];
+      const neighbors = getNeighbors(row, col);
+      const owner = explodingCell.owner;
+
+      explodingCell.count = 0;
+      explodingCell.owner = 'empty';
+
+      for (const neighbor of neighbors) {
+        newBoard[neighbor.row][neighbor.col].count += 1;
+        newBoard[neighbor.row][neighbor.col].owner = owner;
+      }
+    }
+
+    return newBoard;
+  };
+
+  const checkWinCondition = useCallback((state: BoardState): Player | null => {
     let playerOrbs = 0;
     let aiOrbs = 0;
 
-    for (const row of board) {
+    for (const row of state) {
       for (const cell of row) {
         if (cell.owner === 'player') playerOrbs += cell.count;
         if (cell.owner === 'ai') aiOrbs += cell.count;
@@ -168,16 +173,17 @@ export const useGameLogic = () => {
   }, []);
 
   const makeMove = useCallback(
-    (row: number, col: number) => {
+    async (row: number, col: number) => {
       if (gameState !== 'playing' || isAnimating) return false;
 
       const validMoves = getValidMoves();
       const isValidMove = validMoves.some((move) => move.row === row && move.col === col);
-
       if (!isValidMove) return false;
 
-      // Immediately update the board for instant feedback
-      const newBoard = board.map((boardRow, r) =>
+      setIsAnimating(true);
+
+      // 1️⃣ Apply the click
+      let newBoard = board.map((boardRow, r) =>
         boardRow.map((boardCell, c) => {
           if (r === row && c === col) {
             return {
@@ -189,39 +195,31 @@ export const useGameLogic = () => {
           return { ...boardCell };
         })
       );
-
-      // Set board immediately for instant visual feedback
       setBoard(newBoard);
-      setIsAnimating(true);
 
-      // Process explosions and check win condition
-      const finalBoard = processExplosions(newBoard);
-      const gameWinner = checkWinCondition(finalBoard);
+      // 2️⃣ Explosions happen one step at a time
+      while (true) {
+        const nextStep = getNextExplosionStep(newBoard);
+        if (!nextStep) break;
 
-      // Use a much shorter delay for smoother gameplay
-      setTimeout(() => {
-        setBoard(finalBoard);
+        newBoard = nextStep;
+        setBoard(newBoard);
+        await new Promise((resolve) => setTimeout(resolve, 300)); // ✅ Adjust this delay if needed
+      }
 
-        if (gameWinner) {
-          setGameState('finished');
-        } else {
-          setCurrentPlayer(currentPlayer === 'player' ? 'ai' : 'player');
-        }
-
+      // 3️⃣ Final winner check
+      const gameWinner = checkWinCondition(newBoard);
+      if (gameWinner) {
+        setGameState('finished');
         setIsAnimating(false);
-      }, 150); // Reduced from 500ms to 150ms for much faster response
+      } else {
+        setCurrentPlayer(currentPlayer === 'player' ? 'ai' : 'player');
+        setIsAnimating(false);
+      }
 
       return true;
     },
-    [
-      board,
-      currentPlayer,
-      gameState,
-      isAnimating,
-      processExplosions,
-      checkWinCondition,
-      getValidMoves,
-    ]
+    [board, currentPlayer, gameState, isAnimating, getValidMoves, checkWinCondition]
   );
 
   const resetGame = useCallback(() => {
@@ -229,7 +227,6 @@ export const useGameLogic = () => {
     setCurrentPlayer('player');
     setGameState('playing');
     setIsAnimating(false);
-    // Don't regenerate colors on reset - keep them for the session
   }, []);
 
   return {
