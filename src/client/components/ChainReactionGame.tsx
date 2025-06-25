@@ -56,10 +56,11 @@ export const ChainReactionGame: React.FC = () => {
 
   useEffect(() => {
     if (gameState === 'finished' && winner) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setShowGameOver(true);
         playSound(winner === 'player' ? 'victory' : 'defeat');
       }, 800);
+      return () => clearTimeout(timer);
     }
   }, [gameState, winner, playSound]);
 
@@ -99,7 +100,6 @@ export const ChainReactionGame: React.FC = () => {
   const playerCount = board.flat().filter((cell) => cell.owner === 'player').length;
   const aiCount = board.flat().filter((cell) => cell.owner === 'ai').length;
 
-  // Show mode selector when in menu state
   if (gameState === 'menu') {
     return (
       <GameModeSelector
@@ -111,20 +111,21 @@ export const ChainReactionGame: React.FC = () => {
   }
 
   const backgroundStyle: React.CSSProperties = {
-    background: `radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)`,
+    background:
+      gameState === 'finished'
+        ? `radial-gradient(circle, ${winner === 'player' ? playerColor : aiColor} 0%, #222 100%)`
+        : 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
     minHeight: '100vh',
     overflow: 'auto',
   };
 
-  if (gameState === 'finished') {
-    backgroundStyle.background = `radial-gradient(circle, ${
-      winner === 'player' ? playerColor : aiColor
-    } 0%, #222 100%)`;
-  }
-
   return (
-    <div className="flex flex-col transition-colors duration-500" style={backgroundStyle}>
-      <div className="flex-shrink-0">
+    <div
+      className="fixed inset-0 flex flex-col items-center justify-center transition-colors duration-500 p-4"
+      style={backgroundStyle}
+    >
+      {/* Game Header */}
+      <div className="w-full flex justify-center">
         <GameHeader
           currentPlayer={currentPlayer}
           gameState={gameState}
@@ -139,7 +140,8 @@ export const ChainReactionGame: React.FC = () => {
         />
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-2 md:p-4">
+      {/* Game Board - Centered */}
+      <div className="flex flex-1 items-center justify-center p-4">
         <GameBoard
           board={board}
           onCellClick={handleCellClick}
@@ -151,6 +153,7 @@ export const ChainReactionGame: React.FC = () => {
         />
       </div>
 
+      {/* Game Over Modal */}
       {showGameOver && (
         <GameOverModal
           winner={winner}

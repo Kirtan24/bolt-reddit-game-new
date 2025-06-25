@@ -67,12 +67,12 @@ const createInitialBoard = (config: GameConfig): BoardState => {
   // Add obstacles for hard mode
   if (config.difficulty === 'hard' && config.obstacleCount > 0) {
     const obstacles = new Set<string>();
-    
+
     while (obstacles.size < config.obstacleCount) {
       const row = Math.floor(Math.random() * BOARD_SIZE);
       const col = Math.floor(Math.random() * BOARD_SIZE);
       const key = `${row}-${col}`;
-      
+
       // Avoid center cell and corners for better gameplay
       if (
         (row === 2 && col === 2) || // center
@@ -83,7 +83,7 @@ const createInitialBoard = (config: GameConfig): BoardState => {
       ) {
         continue;
       }
-      
+
       if (!obstacles.has(key)) {
         obstacles.add(key);
         board[row][col].isObstacle = true;
@@ -160,10 +160,10 @@ export const useGameLogic = () => {
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         const cell = board[row][col];
-        
+
         // Skip obstacles
         if (cell.isObstacle) continue;
-        
+
         if (!playerHasOrbs) {
           if (cell.owner === 'empty') {
             moves.push({ row, col });

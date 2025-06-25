@@ -35,19 +35,27 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
 
   const getDifficultyColor = () => {
     switch (difficulty) {
-      case 'easy': return '#4CAF50';
-      case 'medium': return '#FF9800';
-      case 'hard': return '#F44336';
-      default: return '#FF9800';
+      case 'easy':
+        return '#4CAF50';
+      case 'medium':
+        return '#FF9800';
+      case 'hard':
+        return '#F44336';
+      default:
+        return '#FF9800';
     }
   };
 
   const getDifficultyIcon = () => {
     switch (difficulty) {
-      case 'easy': return '😊';
-      case 'medium': return '😐';
-      case 'hard': return '😤';
-      default: return '😐';
+      case 'easy':
+        return '😊';
+      case 'medium':
+        return '😐';
+      case 'hard':
+        return '😤';
+      default:
+        return '😐';
     }
   };
 
@@ -55,12 +63,12 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
     <div className="flex flex-col items-center justify-center p-3 w-full max-w-4xl mx-auto space-y-3">
       <div className="flex items-center space-x-4">
         <h1 className="text-2xl md:text-4xl font-bold text-white drop-shadow-lg">Chain Reaction</h1>
-        <div 
+        <div
           className="px-3 py-1 rounded-full text-sm font-bold text-white border-2"
-          style={{ 
+          style={{
             backgroundColor: getDifficultyColor() + '20',
             borderColor: getDifficultyColor(),
-            color: getDifficultyColor()
+            color: getDifficultyColor(),
           }}
         >
           {getDifficultyIcon()} {difficulty.toUpperCase()}
@@ -136,7 +144,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
           </button>
         </div>
       </div>
-      
+
       <div className={`text-lg md:text-2xl font-bold text-white ${isAnimating && 'animate-pulse'}`}>
         {getStatusText()}
       </div>
