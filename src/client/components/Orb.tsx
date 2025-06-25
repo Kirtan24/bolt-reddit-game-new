@@ -55,14 +55,14 @@ export const Orb: React.FC<OrbProps> = ({
   return (
     <div
       className={`
-        absolute w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full transform transition-all duration-300 ease-out
+        absolute w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full transform transition-all duration-100 ease-out
         ${getOrbPosition(index, total)}
         ${isNearCritical ? 'animate-bounce' : 'animate-float'}
         hover:scale-110
       `}
       style={{
-        animationDelay: `${index * 100}ms`,
-        animationDuration: isNearCritical ? '0.5s' : '2s',
+        animationDelay: `${index * 50}ms`, // Reduced delay for faster animations
+        animationDuration: isNearCritical ? '0.4s' : '1.8s', // Slightly faster animations
         animationTimingFunction: isNearCritical
           ? 'cubic-bezier(0.5, 0.5, 0.5, 0.5)'
           : 'ease-in-out',
