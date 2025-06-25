@@ -176,8 +176,7 @@ export const useGameLogic = () => {
 
       if (!isValidMove) return false;
 
-      setIsAnimating(true);
-
+      // Immediately update the board for instant feedback
       const newBoard = board.map((boardRow, r) =>
         boardRow.map((boardCell, c) => {
           if (r === row && c === col) {
@@ -191,12 +190,18 @@ export const useGameLogic = () => {
         })
       );
 
-      const finalBoard = processExplosions(newBoard);
+      // Set board immediately for instant visual feedback
+      setBoard(newBoard);
+      setIsAnimating(true);
 
+      // Process explosions and check win condition
+      const finalBoard = processExplosions(newBoard);
+      const gameWinner = checkWinCondition(finalBoard);
+
+      // Use a much shorter delay for smoother gameplay
       setTimeout(() => {
         setBoard(finalBoard);
 
-        const gameWinner = checkWinCondition(finalBoard);
         if (gameWinner) {
           setGameState('finished');
         } else {
@@ -204,7 +209,7 @@ export const useGameLogic = () => {
         }
 
         setIsAnimating(false);
-      }, 500);
+      }, 150); // Reduced from 500ms to 150ms for much faster response
 
       return true;
     },

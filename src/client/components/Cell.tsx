@@ -45,9 +45,10 @@ export const Cell: React.FC<CellProps> = ({
       disabled={disabled || !isValid}
       className={`
         relative flex items-center justify-center aspect-square rounded-xl border
+        transition-all duration-75
         ${getBaseClass()}
         ${getHighlightColor()}
-        ${isValid && !disabled ? 'cursor-pointer' : 'cursor-default opacity-75'}
+        ${isValid && !disabled ? 'cursor-pointer active:scale-95' : 'cursor-default opacity-75'}
         ${isNearCritical ? 'animate-pulse' : ''}
       `}
     >

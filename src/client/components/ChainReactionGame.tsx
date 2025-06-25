@@ -50,7 +50,7 @@ export const ChainReactionGame: React.FC = () => {
           makeMove(aiMove.row, aiMove.col);
           playSound('aiPlace');
         }
-      }, 1000);
+      }, 600); // Slightly reduced AI thinking time for better flow
       return () => clearTimeout(timer);
     }
   }, [
@@ -69,7 +69,7 @@ export const ChainReactionGame: React.FC = () => {
       setTimeout(() => {
         setShowGameOver(true);
         playSound(winner === 'player' ? 'victory' : 'defeat');
-      }, 1000);
+      }, 800); // Reduced delay for faster game over display
     }
   }, [gameState, winner, playSound]);
 
