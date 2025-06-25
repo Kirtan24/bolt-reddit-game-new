@@ -23,6 +23,17 @@ export const Cell: React.FC<CellProps> = ({
 }) => {
   const isNearCritical = cell.count >= cell.criticalMass - 1 && cell.count > 0;
 
+  // Obstacle styling
+  if (cell.isObstacle) {
+    return (
+      <div className="relative flex items-center justify-center aspect-square rounded-xl border-2 border-gray-600 bg-gray-800">
+        <div className="text-2xl">🚫</div>
+        <div className="absolute inset-0 bg-red-500/20 rounded-xl"></div>
+        <div className="absolute bottom-1 right-1 text-xs text-red-400 font-bold">X</div>
+      </div>
+    );
+  }
+
   const getBaseClass = () => {
     if (cell.owner === 'empty') {
       return isValid ? 'bg-slate-600/40 hover:bg-slate-500/60' : 'bg-slate-700/30';
@@ -30,6 +41,7 @@ export const Cell: React.FC<CellProps> = ({
     const baseColor = cell.owner === 'player' ? playerColor : aiColor;
     return isValid ? baseColor : `${baseColor} opacity-80`;
   };
+
   const getHighlightColor = () =>
     isValid && !disabled
       ? 'ring-2 ring-yellow-400'

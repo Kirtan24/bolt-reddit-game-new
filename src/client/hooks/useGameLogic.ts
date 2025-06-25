@@ -1,9 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
-import { BoardState, CellData, Player, GameState, Move } from '../types/game';
+import { BoardState, CellData, Player, GameState, Move, Difficulty, GameConfig } from '../types/game';
 
 const BOARD_SIZE = 5;
 
-// const COLORS = ['blue', 'green', 'purple', 'pink', 'red', 'orange', 'yellow'];
 const COLORS = [
   '#007BFF', // Bright Blue
   '#DC3545', // Strong Red
@@ -25,16 +24,74 @@ const getRandomColors = () => {
   };
 };
 
-const createInitialBoard = (): BoardState => {
-  return Array.from({ length: BOARD_SIZE }, (_, row) =>
+const getGameConfig = (difficulty: Difficulty): GameConfig => {
+  switch (difficulty) {
+    case 'easy':
+      return {
+        difficulty,
+        aiThinkingTime: 1200,
+        aiSkillLevel: 1,
+        obstacleCount: 0,
+      };
+    case 'medium':
+      return {
+        difficulty,
+        aiThinkingTime: 800,
+        aiSkillLevel: 2,
+        obstacleCount: 0,
+      };
+    case 'hard':
+      return {
+        difficulty,
+        aiThinkingTime: 600,
+        aiSkillLevel: 3,
+        obstacleCount: 3, // 3 random obstacles
+      };
+    default:
+      return getGameConfig('medium');
+  }
+};
+
+const createInitialBoard = (config: GameConfig): BoardState => {
+  const board = Array.from({ length: BOARD_SIZE }, (_, row) =>
     Array.from({ length: BOARD_SIZE }, (_, col) => {
       return {
         owner: 'empty' as Player,
         count: 0,
         criticalMass: 4,
+        isObstacle: false,
       };
     })
   );
+
+  // Add obstacles for hard mode
+  if (config.difficulty === 'hard' && config.obstacleCount > 0) {
+    const obstacles = new Set<string>();
+    
+    while (obstacles.size < config.obstacleCount) {
+      const row = Math.floor(Math.random() * BOARD_SIZE);
+      const col = Math.floor(Math.random() * BOARD_SIZE);
+      const key = `${row}-${col}`;
+      
+      // Avoid center cell and corners for better gameplay
+      if (
+        (row === 2 && col === 2) || // center
+        (row === 0 && col === 0) || // corners
+        (row === 0 && col === BOARD_SIZE - 1) ||
+        (row === BOARD_SIZE - 1 && col === 0) ||
+        (row === BOARD_SIZE - 1 && col === BOARD_SIZE - 1)
+      ) {
+        continue;
+      }
+      
+      if (!obstacles.has(key)) {
+        obstacles.add(key);
+        board[row][col].isObstacle = true;
+      }
+    }
+  }
+
+  return board;
 };
 
 const getNeighbors = (row: number, col: number): Move[] => {
@@ -59,9 +116,10 @@ const getNeighbors = (row: number, col: number): Move[] => {
 };
 
 export const useGameLogic = () => {
-  const [board, setBoard] = useState<BoardState>(createInitialBoard);
+  const [gameConfig, setGameConfig] = useState<GameConfig>(getGameConfig('medium'));
+  const [board, setBoard] = useState<BoardState>(() => createInitialBoard(gameConfig));
   const [currentPlayer, setCurrentPlayer] = useState<Player>('player');
-  const [gameState, setGameState] = useState<GameState>('playing');
+  const [gameState, setGameState] = useState<GameState>('menu');
   const [isAnimating, setIsAnimating] = useState(false);
   const [colors] = useState(() => getRandomColors());
 
@@ -102,6 +160,10 @@ export const useGameLogic = () => {
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         const cell = board[row][col];
+        
+        // Skip obstacles
+        if (cell.isObstacle) continue;
+        
         if (!playerHasOrbs) {
           if (cell.owner === 'empty') {
             moves.push({ row, col });
@@ -123,9 +185,11 @@ export const useGameLogic = () => {
 
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
+        const cell = newBoard[row][col];
         if (
-          newBoard[row][col].count >= newBoard[row][col].criticalMass &&
-          newBoard[row][col].count > 0
+          !cell.isObstacle &&
+          cell.count >= cell.criticalMass &&
+          cell.count > 0
         ) {
           explosions.push({ row, col });
         }
@@ -145,8 +209,12 @@ export const useGameLogic = () => {
       explodingCell.owner = 'empty';
 
       for (const neighbor of neighbors) {
-        newBoard[neighbor.row][neighbor.col].count += 1;
-        newBoard[neighbor.row][neighbor.col].owner = owner;
+        const neighborCell = newBoard[neighbor.row][neighbor.col];
+        // Don't add orbs to obstacles
+        if (!neighborCell.isObstacle) {
+          neighborCell.count += 1;
+          neighborCell.owner = owner;
+        }
       }
     }
 
@@ -182,7 +250,7 @@ export const useGameLogic = () => {
 
       setIsAnimating(true);
 
-      // 1️⃣ Apply the click
+      // Apply the click
       let newBoard = board.map((boardRow, r) =>
         boardRow.map((boardCell, c) => {
           if (r === row && c === col) {
@@ -197,17 +265,17 @@ export const useGameLogic = () => {
       );
       setBoard(newBoard);
 
-      // 2️⃣ Explosions happen one step at a time
+      // Process explosions
       while (true) {
         const nextStep = getNextExplosionStep(newBoard);
         if (!nextStep) break;
 
         newBoard = nextStep;
         setBoard(newBoard);
-        await new Promise((resolve) => setTimeout(resolve, 300)); // ✅ Adjust this delay if needed
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
-      // 3️⃣ Final winner check
+      // Check for winner
       const gameWinner = checkWinCondition(newBoard);
       if (gameWinner) {
         setGameState('finished');
@@ -222,10 +290,25 @@ export const useGameLogic = () => {
     [board, currentPlayer, gameState, isAnimating, getValidMoves, checkWinCondition]
   );
 
-  const resetGame = useCallback(() => {
-    setBoard(createInitialBoard());
+  const startGame = useCallback((difficulty: Difficulty) => {
+    const config = getGameConfig(difficulty);
+    setGameConfig(config);
+    setBoard(createInitialBoard(config));
     setCurrentPlayer('player');
     setGameState('playing');
+    setIsAnimating(false);
+  }, []);
+
+  const resetGame = useCallback(() => {
+    setBoard(createInitialBoard(gameConfig));
+    setCurrentPlayer('player');
+    setGameState('playing');
+    setIsAnimating(false);
+  }, [gameConfig]);
+
+  const returnToMenu = useCallback(() => {
+    setGameState('menu');
+    setCurrentPlayer('player');
     setIsAnimating(false);
   }, []);
 
@@ -235,8 +318,11 @@ export const useGameLogic = () => {
     gameState,
     winner,
     isAnimating,
+    gameConfig,
     makeMove,
+    startGame,
     resetGame,
+    returnToMenu,
     getValidMoves,
     playerColor,
     aiColor,

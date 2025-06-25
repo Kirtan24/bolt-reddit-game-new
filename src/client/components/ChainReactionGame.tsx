@@ -1,11 +1,12 @@
-// Updated ChainReactionGame.tsx
 import React, { useState, useCallback, useEffect } from 'react';
 import { GameBoard } from './GameBoard';
 import { GameHeader } from './GameHeader';
 import { GameOverModal } from './GameOverModal';
+import { GameModeSelector } from './GameModeSelector';
 import { useGameLogic } from '../hooks/useGameLogic';
 import { useAI } from '../hooks/useAI';
 import { useSoundEffects } from '../hooks/useSoundEffects';
+import { Difficulty } from '../types/game';
 
 export const ChainReactionGame: React.FC = () => {
   const {
@@ -14,8 +15,11 @@ export const ChainReactionGame: React.FC = () => {
     gameState,
     winner,
     isAnimating,
+    gameConfig,
     makeMove,
+    startGame,
     resetGame,
+    returnToMenu,
     getValidMoves,
     aiColor,
     playerColor,
@@ -25,32 +29,17 @@ export const ChainReactionGame: React.FC = () => {
   const { playSound } = useSoundEffects();
 
   const [showGameOver, setShowGameOver] = useState(false);
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('medium');
 
   useEffect(() => {
     if (currentPlayer === 'ai' && gameState === 'playing' && !isAnimating) {
       const timer = setTimeout(() => {
-        const aiMove = makeAIMove(board, getValidMoves());
+        const aiMove = makeAIMove(board, getValidMoves(), gameConfig);
         if (aiMove) {
           makeMove(aiMove.row, aiMove.col);
           playSound('aiPlace');
         }
-      }, 600); // Slightly reduced AI thinking time for better flow
+      }, gameConfig.aiThinkingTime);
       return () => clearTimeout(timer);
     }
   }, [
@@ -58,6 +47,7 @@ export const ChainReactionGame: React.FC = () => {
     gameState,
     isAnimating,
     board,
+    gameConfig,
     makeAIMove,
     makeMove,
     getValidMoves,
@@ -69,7 +59,7 @@ export const ChainReactionGame: React.FC = () => {
       setTimeout(() => {
         setShowGameOver(true);
         playSound(winner === 'player' ? 'victory' : 'defeat');
-      }, 800); // Reduced delay for faster game over display
+      }, 800);
     }
   }, [gameState, winner, playSound]);
 
@@ -89,14 +79,36 @@ export const ChainReactionGame: React.FC = () => {
     [currentPlayer, gameState, isAnimating, makeMove, getValidMoves, playSound]
   );
 
+  const handleStartGame = useCallback(() => {
+    startGame(selectedDifficulty);
+    playSound('restart');
+  }, [startGame, selectedDifficulty, playSound]);
+
   const handleRestart = useCallback(() => {
     setShowGameOver(false);
     resetGame();
     playSound('restart');
   }, [resetGame, playSound]);
 
+  const handleReturnToMenu = useCallback(() => {
+    setShowGameOver(false);
+    returnToMenu();
+    playSound('restart');
+  }, [returnToMenu, playSound]);
+
   const playerCount = board.flat().filter((cell) => cell.owner === 'player').length;
   const aiCount = board.flat().filter((cell) => cell.owner === 'ai').length;
+
+  // Show mode selector when in menu state
+  if (gameState === 'menu') {
+    return (
+      <GameModeSelector
+        selectedDifficulty={selectedDifficulty}
+        onDifficultyChange={setSelectedDifficulty}
+        onStartGame={handleStartGame}
+      />
+    );
+  }
 
   const backgroundStyle: React.CSSProperties = {
     background: `radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)`,
@@ -118,10 +130,12 @@ export const ChainReactionGame: React.FC = () => {
           gameState={gameState}
           isAnimating={isAnimating}
           onRestart={handleRestart}
+          onReturnToMenu={handleReturnToMenu}
           playerColor={playerColor}
           aiColor={aiColor}
           aiScore={aiCount}
           playerScore={playerCount}
+          difficulty={gameConfig.difficulty}
         />
       </div>
 
@@ -134,8 +148,6 @@ export const ChainReactionGame: React.FC = () => {
           isAnimating={isAnimating}
           playerColor={playerColor}
           aiColor={aiColor}
-          playerScore={playerCount}
-          aiScore={aiCount}
         />
       </div>
 
@@ -143,9 +155,11 @@ export const ChainReactionGame: React.FC = () => {
         <GameOverModal
           winner={winner}
           onRestart={handleRestart}
+          onReturnToMenu={handleReturnToMenu}
           onClose={() => setShowGameOver(false)}
           playerColor={playerColor}
           aiColor={aiColor}
+          difficulty={gameConfig.difficulty}
         />
       )}
     </div>

@@ -1,10 +1,12 @@
 export type Player = 'empty' | 'player' | 'ai';
-export type GameState = 'playing' | 'finished';
+export type GameState = 'menu' | 'playing' | 'finished';
+export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface CellData {
   owner: Player;
   count: number;
   criticalMass: number;
+  isObstacle?: boolean; // For hard mode obstacles
 }
 
 export type BoardState = CellData[][];
@@ -24,4 +26,11 @@ export interface ExplosionEvent {
   row: number;
   col: number;
   timestamp: number;
+}
+
+export interface GameConfig {
+  difficulty: Difficulty;
+  aiThinkingTime: number;
+  aiSkillLevel: number;
+  obstacleCount: number;
 }

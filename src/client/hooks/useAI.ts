@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { BoardState, Move, Player } from '../types/game';
+import { BoardState, Move, Player, GameConfig } from '../types/game';
 
 interface AIMove extends Move {
   score: number;
@@ -24,15 +24,12 @@ const getNeighbors = (row: number, col: number): Move[] => {
 };
 
 const simulateMove = (board: BoardState, move: Move, player: Player): BoardState => {
-  // Create a deep copy of the board
   const newBoard = board.map(row => row.map(cell => ({ ...cell })));
   
-  // Make the move
   const cell = newBoard[move.row][move.col];
   cell.owner = player;
   cell.count += 1;
   
-  // Process explosions
   let hasExplosions = true;
   while (hasExplosions) {
     hasExplosions = false;
@@ -41,7 +38,7 @@ const simulateMove = (board: BoardState, move: Move, player: Player): BoardState
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         const currentCell = newBoard[row][col];
-        if (currentCell.count >= 4 && currentCell.count > 0) { // All cells explode at 4
+        if (!currentCell.isObstacle && currentCell.count >= 4 && currentCell.count > 0) {
           explosions.push({ row, col });
         }
       }
@@ -60,8 +57,10 @@ const simulateMove = (board: BoardState, move: Move, player: Player): BoardState
         
         for (const neighbor of neighbors) {
           const neighborCell = newBoard[neighbor.row][neighbor.col];
-          neighborCell.count += 1;
-          neighborCell.owner = explodingPlayer;
+          if (!neighborCell.isObstacle) {
+            neighborCell.count += 1;
+            neighborCell.owner = explodingPlayer;
+          }
         }
       }
     }
@@ -70,7 +69,7 @@ const simulateMove = (board: BoardState, move: Move, player: Player): BoardState
   return newBoard;
 };
 
-const evaluateBoard = (board: BoardState): number => {
+const evaluateBoard = (board: BoardState, config: GameConfig): number => {
   let playerScore = 0;
   let aiScore = 0;
   
@@ -80,13 +79,11 @@ const evaluateBoard = (board: BoardState): number => {
       
       if (cell.owner === 'player') {
         playerScore += cell.count;
-        // Bonus for cells near critical mass
         if (cell.count >= 3) {
           playerScore += 2;
         }
       } else if (cell.owner === 'ai') {
         aiScore += cell.count;
-        // Bonus for cells near critical mass
         if (cell.count >= 3) {
           aiScore += 2;
         }
@@ -94,15 +91,13 @@ const evaluateBoard = (board: BoardState): number => {
     }
   }
   
-  // Check for win conditions
-  if (playerScore === 0 && aiScore > 0) return 1000; // AI wins
-  if (aiScore === 0 && playerScore > 0) return -1000; // Player wins
+  if (playerScore === 0 && aiScore > 0) return 1000;
+  if (aiScore === 0 && playerScore > 0) return -1000;
   
   return aiScore - playerScore;
 };
 
 const getCellValue = (row: number, col: number): number => {
-  // Corner cells are more valuable (harder to lose)
   const isCorner = (row === 0 || row === BOARD_SIZE - 1) && (col === 0 || col === BOARD_SIZE - 1);
   const isEdge = row === 0 || row === BOARD_SIZE - 1 || col === 0 || col === BOARD_SIZE - 1;
   
@@ -112,45 +107,87 @@ const getCellValue = (row: number, col: number): number => {
 };
 
 export const useAI = () => {
-  const makeAIMove = useCallback((board: BoardState, validMoves: Move[]): Move | null => {
+  const makeAIMove = useCallback((board: BoardState, validMoves: Move[], config: GameConfig): Move | null => {
     if (validMoves.length === 0) return null;
     
     const aiMoves: AIMove[] = validMoves.map(move => {
-      // Simulate the move
       const simulatedBoard = simulateMove(board, move, 'ai');
+      let score = evaluateBoard(simulatedBoard, config);
       
-      // Evaluate the resulting board
-      let score = evaluateBoard(simulatedBoard);
-      
-      // Add positional bonus
-      score += getCellValue(move.row, move.col);
-      
-      // Bonus for expanding to new territory
-      const cell = board[move.row][move.col];
-      if (cell.owner === 'empty') {
-        score += 1;
-      }
-      
-      // Penalty for moves that set up opponent's big chains
-      const neighbors = getNeighbors(move.row, move.col);
-      for (const neighbor of neighbors) {
-        const neighborCell = board[neighbor.row][neighbor.col];
-        if (neighborCell.owner === 'player' && neighborCell.count >= 3) {
-          score -= 3; // Avoid helping opponent
-        }
+      // Adjust AI behavior based on difficulty
+      switch (config.aiSkillLevel) {
+        case 1: // Easy
+          // Add randomness and make suboptimal moves sometimes
+          score += (Math.random() - 0.5) * 10;
+          // Reduce strategic thinking
+          score *= 0.7;
+          break;
+          
+        case 2: // Medium
+          // Standard AI behavior
+          score += getCellValue(move.row, move.col);
+          break;
+          
+        case 3: // Hard
+          // Enhanced strategic thinking
+          score += getCellValue(move.row, move.col) * 2;
+          
+          // Look ahead for opponent threats
+          const neighbors = getNeighbors(move.row, move.col);
+          for (const neighbor of neighbors) {
+            const neighborCell = board[neighbor.row][neighbor.col];
+            if (neighborCell.owner === 'player' && neighborCell.count >= 3) {
+              score -= 5; // Avoid helping opponent
+            }
+          }
+          
+          // Bonus for aggressive plays
+          const cell = board[move.row][move.col];
+          if (cell.owner === 'empty') {
+            score += 2; // Expansion bonus
+          }
+          break;
       }
       
       return { ...move, score };
     });
     
-    // Sort by score (highest first)
     aiMoves.sort((a, b) => b.score - a.score);
     
-    // Add some randomness to make AI less predictable
-    const topMoves = aiMoves.filter(move => move.score >= aiMoves[0].score - 2);
-    const randomIndex = Math.floor(Math.random() * Math.min(3, topMoves.length));
+    // Add difficulty-based randomness
+    let selectedMove: Move;
     
-    return topMoves[randomIndex] || aiMoves[0];
+    switch (config.aiSkillLevel) {
+      case 1: // Easy - often pick suboptimal moves
+        const randomFactor = Math.random();
+        if (randomFactor < 0.4) {
+          // 40% chance to pick a random move
+          selectedMove = aiMoves[Math.floor(Math.random() * aiMoves.length)];
+        } else {
+          // 60% chance to pick from top 3 moves
+          const topMoves = aiMoves.slice(0, Math.min(3, aiMoves.length));
+          selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+        }
+        break;
+        
+      case 2: // Medium - balanced approach
+        const topMoves = aiMoves.filter(move => move.score >= aiMoves[0].score - 3);
+        selectedMove = topMoves[Math.floor(Math.random() * Math.min(2, topMoves.length))];
+        break;
+        
+      case 3: // Hard - almost always pick the best move
+        if (Math.random() < 0.9) {
+          selectedMove = aiMoves[0]; // 90% best move
+        } else {
+          selectedMove = aiMoves[Math.min(1, aiMoves.length - 1)]; // 10% second best
+        }
+        break;
+        
+      default:
+        selectedMove = aiMoves[0];
+    }
+    
+    return selectedMove;
   }, []);
 
   return { makeAIMove };
