@@ -16,63 +16,32 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
     {
       id: 'easy' as Difficulty,
       name: 'EASY',
-      icon: '😊',
-      color: '#4CAF50',
-      description: 'Perfect for newcomers',
+      icon: '🌱',
+      color: '#22c55e',
+      description: 'For rookies & couch potatoes 🥔',
     },
     {
       id: 'medium' as Difficulty,
       name: 'MEDIUM',
-      icon: '😐',
-      color: '#FF9800',
-      description: 'A balanced challenge',
+      icon: '🔥',
+      color: '#f59e0b',
+      description: 'For the average gamer 💥',
     },
     {
       id: 'hard' as Difficulty,
       name: 'HARD',
-      icon: '😤',
-      color: '#F44336',
-      description: 'For seasoned pros',
+      icon: '💀',
+      color: '#ef4444',
+      description: 'For sweat lords & maniacs 👑',
     },
   ];
 
-  const [dragging, setDragging] = useState(false);
-  // const [setSliderPosition] = useState(0);
-  const sliderRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!dragging || !sliderRef.current) return;
-
-    const rect = sliderRef.current.getBoundingClientRect();
-    let newPosition = (e.clientX - rect.left) / rect.width;
-
-    newPosition = Math.max(0, Math.min(newPosition, 1));
-
-    const index = Math.round(newPosition * (difficulties.length - 1));
-    onDifficultyChange(difficulties[index].id);
-  };
-
-  const handleMouseUp = () => setDragging(false);
-
-  const getBackgroundClass = () => {
-    switch (selectedDifficulty) {
-      case 'easy':
-        return 'bg-[radial-gradient(ellipse_at_center,_#4CAF50_0%,_#1B5E20_100%)]';
-      case 'medium':
-        return 'bg-[radial-gradient(ellipse_at_center,_#FF9800_0%,_#F57C00_100%)]';
-      case 'hard':
-        return 'bg-[radial-gradient(ellipse_at_center,_#F44336_0%,_#B71C1C_100%)]';
-      default:
-        return 'bg-[radial-gradient(ellipse_at_center,_#1e293b_0%,_#4c1d95_100%)]';
-    }
-  };
-
   const tips = [
-    '💡 Tip: Corner spots are safe but harder to expand from... use wisely!',
-    '⚔️ Tip: Focus on claiming smaller spots first to gain area quickly!',
-    '🔥 Tip: Chain reactions can wipe out enemy spots — time them well!',
-    '👀 Tip: Watch your opponent closely and adapt your moves accordingly!',
-    "🎯 Tip: Sometimes it's better to defend than to attack!",
+    '💡 Tip: Corner spots = safe, but boring… try riskier plays!',
+    '⚔️ Tip: Claim smaller spots quickly for early dominance!',
+    '🔥 Tip: Chain reactions can wipe out enemies… BOOM! 💥',
+    '👀 Tip: Watch your opponent closely, adapt your moves!',
+    '🎯 Tip: Sometimes defending beats attacking. Stay sharp!',
   ];
 
   const [randomTip, setRandomTip] = useState('');
@@ -82,78 +51,67 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
     setRandomTip(tips[randomIndex]);
   }, []);
 
-  useEffect(() => {
-    if (dragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [dragging]);
-
   return (
-    <div
-      className={`fixed inset-0 flex items-center justify-center p-4 ${getBackgroundClass()} overflow-auto`}
-    >
-      <div className="w-full max-w-3xl space-y-4 md:space-y-8 px-4 py-8">
-        {/* Header */}
+    <div className="fixed inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 overflow-auto">
+      <div className="w-full max-w-3xl space-y-4 md:space-y-6 p-4 rounded-3xl backdrop-blur-sm">
+        {/* Main Header */}
         <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+          <h1 className="text-4xl sm:text-5xl font-bold text-yellow-400 drop-shadow-[0px_0px_12px_#facc15]">
             ⚡ CHAIN REACTION ⚡
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-300 mt-2">
-            Choose your difficulty, then blast away! 💥
+            Pick your difficulty & unleash total chaos! 👊
           </p>
         </div>
 
         {/* Difficulty Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {difficulties.map((diff) => (
-            <button
+            <div
               key={diff.id}
               onClick={() => onDifficultyChange(diff.id)}
-              className={`relative p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-center transition-all duration-200
-                ${
-                  selectedDifficulty === diff.id
-                    ? 'border-white bg-white/20 scale-[1.02]'
-                    : 'border-gray-500 bg-gray-800 hover:bg-gray-700'
-                }`}
+              className={`
+        relative p-6 rounded-2xl border-2 cursor-pointer
+        transition-all transform
+        ${selectedDifficulty === diff.id ? 'scale-105 shadow-[0px_0px_15px_#facc15]' : 'hover:scale-102'}
+      `}
+              style={{
+                borderColor: diff.color,
+                background: `${diff.color}22`,
+              }}
             >
-              <div className="text-4xl sm:text-5xl">{diff.icon}</div>
-              <h3
-                className="text-xl sm:text-2xl font-bold mt-2 sm:mt-3"
-                style={{ color: diff.color }}
-              >
+              <div className="text-5xl">{diff.icon}</div>
+              <h3 className="text-2xl font-bold mt-3" style={{ color: diff.color }}>
                 {diff.name}
               </h3>
-              <p className="text-xs sm:text-sm text-gray-300 mt-1 sm:mt-2">{diff.description}</p>
+              <p className="text-sm text-gray-100 mt-1">{diff.description}</p>
               {selectedDifficulty === diff.id && (
-                <div className="absolute -top-2 -right-2 bg-yellow-500 text-black rounded-full w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center font-bold text-xs sm:text-sm">
-                  ✓
+                <div className="absolute -top-2 -right-2 bg-yellow-400 text-gray-900 rounded-full w-7 h-7 flex items-center justify-center font-bold">
+                  ✅
                 </div>
               )}
-            </button>
+            </div>
           ))}
         </div>
 
         {/* Start Button */}
-        <div className="text-center mt-4 sm:mt-6">
+        <div className="text-center mt-6">
           <button
             onClick={onStartGame}
-            className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold text-lg sm:text-xl md:text-2xl px-6 py-2 sm:px-8 sm:py-3 md:px-12 md:py-4 rounded-lg sm:rounded-xl md:rounded-2xl transition-all duration-200 hover:scale-105 active:scale-95"
+            className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-gray-900 font-bold text-xl sm:text-2xl rounded-xl px-8 py-3 sm:px-10 sm:py-4 shadow-[0px_0px_12px_#facc15] hover:scale-105 active:scale-95 transition"
           >
             🚀 START BATTLE 🚀
           </button>
-          <p className="text-xs sm:text-sm text-gray-400 mt-2 sm:mt-3">
-            Selected Difficulty:{' '}
-            <span className="text-white font-bold">{selectedDifficulty.toUpperCase()}</span>
+          <p className="text-sm text-gray-400 mt-3">
+            Difficulty:{' '}
+            <span className="font-bold text-yellow-400">{selectedDifficulty.toUpperCase()}</span>
           </p>
         </div>
 
         {/* Tip */}
-        <div className="text-center text-xs sm:text-sm text-gray-500 mt-2 sm:mt-4">{randomTip}</div>
+        <div className="text-center text-gray-300 text-sm sm:text-base mt-4 p-3 rounded-xl bg-gray-800/60">
+          💡 {randomTip}
+        </div>
       </div>
     </div>
   );

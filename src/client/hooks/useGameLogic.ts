@@ -1,5 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
-import { BoardState, CellData, Player, GameState, Move, Difficulty, GameConfig } from '../types/game';
+import {
+  BoardState,
+  CellData,
+  Player,
+  GameState,
+  Move,
+  Difficulty,
+  GameConfig,
+} from '../types/game';
 
 const BOARD_SIZE = 5;
 
@@ -29,14 +37,14 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
     case 'easy':
       return {
         difficulty,
-        aiThinkingTime: 1200,
+        aiThinkingTime: 900,
         aiSkillLevel: 1,
         obstacleCount: 0,
       };
     case 'medium':
       return {
         difficulty,
-        aiThinkingTime: 800,
+        aiThinkingTime: 700,
         aiSkillLevel: 2,
         obstacleCount: 0,
       };
@@ -45,7 +53,7 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
         difficulty,
         aiThinkingTime: 600,
         aiSkillLevel: 3,
-        obstacleCount: 3, // 3 random obstacles
+        obstacleCount: Math.floor(Math.random() * 4) + 3
       };
     default:
       return getGameConfig('medium');
@@ -186,11 +194,7 @@ export const useGameLogic = () => {
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         const cell = newBoard[row][col];
-        if (
-          !cell.isObstacle &&
-          cell.count >= cell.criticalMass &&
-          cell.count > 0
-        ) {
+        if (!cell.isObstacle && cell.count >= cell.criticalMass && cell.count > 0) {
           explosions.push({ row, col });
         }
       }
