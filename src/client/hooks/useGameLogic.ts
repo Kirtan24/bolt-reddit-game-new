@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { BoardState, CellData, Player, GameState, Move, Difficulty, GameConfig } from '../types/game';
+import { BoardState, CellData, Player, GameState, Move, Difficulty, GameConfig, ThresholdPattern } from '../types/game';
 
 const BOARD_SIZE = 5;
 
@@ -32,6 +32,7 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
         aiThinkingTime: 1200,
         aiSkillLevel: 1,
         obstacleCount: 0,
+        useVariableThresholds: false,
       };
     case 'medium':
       return {
@@ -39,30 +40,104 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
         aiThinkingTime: 800,
         aiSkillLevel: 2,
         obstacleCount: 0,
+        useVariableThresholds: true,
       };
     case 'hard':
       return {
         difficulty,
         aiThinkingTime: 600,
         aiSkillLevel: 3,
-        obstacleCount: 3, // 3 random obstacles
+        obstacleCount: 3,
+        useVariableThresholds: true,
       };
     default:
       return getGameConfig('medium');
   }
 };
 
+// Calculate threshold based on position for Medium mode
+const getMediumModeThreshold = (row: number, col: number): number => {
+  const maxIndex = BOARD_SIZE - 1;
+  
+  // Outermost border (edges)
+  if (row === 0 || row === maxIndex || col === 0 || col === maxIndex) {
+    return 2;
+  }
+  
+  // Next inner layer
+  if (row === 1 || row === maxIndex - 1 || col === 1 || col === maxIndex - 1) {
+    return 3;
+  }
+  
+  // Inner cells
+  return 4;
+};
+
+// Generate random threshold pattern for Hard mode
+const generateHardModeThresholds = (): ThresholdPattern[] => {
+  const patterns: ThresholdPattern[] = [];
+  const thresholdOptions = [
+    { threshold: 2, type: 'low' as const, weight: 0.3 },
+    { threshold: 3, type: 'medium' as const, weight: 0.4 },
+    { threshold: 4, type: 'high' as const, weight: 0.3 },
+  ];
+
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const random = Math.random();
+      let cumulativeWeight = 0;
+      
+      for (const option of thresholdOptions) {
+        cumulativeWeight += option.weight;
+        if (random <= cumulativeWeight) {
+          patterns.push({
+            row,
+            col,
+            threshold: option.threshold,
+            type: option.type,
+          });
+          break;
+        }
+      }
+    }
+  }
+  
+  return patterns;
+};
+
 const createInitialBoard = (config: GameConfig): BoardState => {
   const board = Array.from({ length: BOARD_SIZE }, (_, row) =>
     Array.from({ length: BOARD_SIZE }, (_, col) => {
+      let criticalMass = 4; // Default for Easy mode
+      let thresholdType: 'low' | 'medium' | 'high' = 'high';
+
+      if (config.difficulty === 'medium') {
+        criticalMass = getMediumModeThreshold(row, col);
+        if (criticalMass === 2) thresholdType = 'low';
+        else if (criticalMass === 3) thresholdType = 'medium';
+        else thresholdType = 'high';
+      }
+
       return {
         owner: 'empty' as Player,
         count: 0,
-        criticalMass: 4,
+        criticalMass,
         isObstacle: false,
+        thresholdType,
       };
     })
   );
+
+  // Apply Hard mode random thresholds
+  if (config.difficulty === 'hard') {
+    const hardThresholds = generateHardModeThresholds();
+    hardThresholds.forEach(({ row, col, threshold, type }) => {
+      if (board[row] && board[row][col]) {
+        board[row][col].criticalMass = threshold;
+        board[row][col].thresholdType = type;
+      }
+    });
+  }
 
   // Add obstacles for hard mode
   if (config.difficulty === 'hard' && config.obstacleCount > 0) {

@@ -6,7 +6,8 @@ export interface CellData {
   owner: Player;
   count: number;
   criticalMass: number;
-  isObstacle?: boolean; // For hard mode obstacles
+  isObstacle?: boolean;
+  thresholdType?: 'low' | 'medium' | 'high'; // For hard mode visualization
 }
 
 export type BoardState = CellData[][];
@@ -33,4 +34,12 @@ export interface GameConfig {
   aiThinkingTime: number;
   aiSkillLevel: number;
   obstacleCount: number;
+  useVariableThresholds: boolean;
+}
+
+export interface ThresholdPattern {
+  row: number;
+  col: number;
+  threshold: number;
+  type: 'low' | 'medium' | 'high';
 }

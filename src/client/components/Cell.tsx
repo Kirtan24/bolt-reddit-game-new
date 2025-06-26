@@ -51,6 +51,20 @@ export const Cell: React.FC<CellProps> = ({
           ? 'ring-2 ring-red-400'
           : 'ring-1 ring-slate-600';
 
+  // Get threshold indicator color
+  const getThresholdColor = () => {
+    switch (cell.thresholdType) {
+      case 'low':
+        return 'text-green-400';
+      case 'medium':
+        return 'text-yellow-400';
+      case 'high':
+        return 'text-red-400';
+      default:
+        return 'text-white/40';
+    }
+  };
+
   return (
     <button
       onClick={onClick}
@@ -64,7 +78,7 @@ export const Cell: React.FC<CellProps> = ({
         ${isNearCritical ? 'animate-pulse' : ''}
       `}
     >
-      <div className="absolute bottom-1 left-1 text-[10px] font-mono text-white/40">
+      <div className={`absolute bottom-1 left-1 text-[10px] font-mono font-bold ${getThresholdColor()}`}>
         {cell.criticalMass}
       </div>
       <div className="relative w-full h-full flex items-center justify-center">
