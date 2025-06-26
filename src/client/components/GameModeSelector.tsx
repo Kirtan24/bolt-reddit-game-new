@@ -37,14 +37,8 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
   ];
 
   const [dragging, setDragging] = useState(false);
-  const [sliderPosition, setSliderPosition] = useState(0);
+  // const [setSliderPosition] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Set slider position based on selected difficulty
-    const index = difficulties.findIndex((d) => d.id === selectedDifficulty);
-    setSliderPosition(index / (difficulties.length - 1));
-  }, [selectedDifficulty]);
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!dragging || !sliderRef.current) return;
@@ -53,13 +47,40 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
     let newPosition = (e.clientX - rect.left) / rect.width;
 
     newPosition = Math.max(0, Math.min(newPosition, 1));
-    setSliderPosition(newPosition);
 
     const index = Math.round(newPosition * (difficulties.length - 1));
     onDifficultyChange(difficulties[index].id);
   };
 
   const handleMouseUp = () => setDragging(false);
+
+  const getBackgroundClass = () => {
+    switch (selectedDifficulty) {
+      case 'easy':
+        return 'bg-[radial-gradient(ellipse_at_center,_#4CAF50_0%,_#1B5E20_100%)]';
+      case 'medium':
+        return 'bg-[radial-gradient(ellipse_at_center,_#FF9800_0%,_#F57C00_100%)]';
+      case 'hard':
+        return 'bg-[radial-gradient(ellipse_at_center,_#F44336_0%,_#B71C1C_100%)]';
+      default:
+        return 'bg-[radial-gradient(ellipse_at_center,_#1e293b_0%,_#4c1d95_100%)]';
+    }
+  };
+
+  const tips = [
+    '💡 Tip: Corner spots are safe but harder to expand from... use wisely!',
+    '⚔️ Tip: Focus on claiming smaller spots first to gain area quickly!',
+    '🔥 Tip: Chain reactions can wipe out enemy spots — time them well!',
+    '👀 Tip: Watch your opponent closely and adapt your moves accordingly!',
+    "🎯 Tip: Sometimes it's better to defend than to attack!",
+  ];
+
+  const [randomTip, setRandomTip] = useState('');
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * tips.length);
+    setRandomTip(tips[randomIndex]);
+  }, []);
 
   useEffect(() => {
     if (dragging) {
@@ -73,7 +94,9 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
   }, [dragging]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-auto">
+    <div
+      className={`fixed inset-0 flex items-center justify-center p-4 ${getBackgroundClass()} overflow-auto`}
+    >
       <div className="w-full max-w-3xl space-y-4 md:space-y-8 px-4 py-8">
         {/* Header */}
         <div className="text-center">
@@ -115,39 +138,6 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
           ))}
         </div>
 
-        {/* Drag Slider */}
-        <div className="bg-black/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/20 mt-4 sm:mt-6">
-          <h3 className="text-white font-bold text-center text-sm sm:text-base">
-            Drag to Adjust Difficulty
-          </h3>
-          <div
-            ref={sliderRef}
-            className="relative mt-3 h-2 sm:h-3 rounded-full bg-gray-600 cursor-pointer"
-            onMouseDown={(e) => {
-              setDragging(true);
-              const rect = sliderRef.current?.getBoundingClientRect();
-              if (rect) {
-                let newPosition = (e.clientX - rect.left) / rect.width;
-                newPosition = Math.max(0, Math.min(newPosition, 1));
-                setSliderPosition(newPosition);
-                const index = Math.round(newPosition * (difficulties.length - 1));
-                onDifficultyChange(difficulties[index].id);
-              }
-            }}
-          >
-            <div
-              className="absolute top-0 left-0 h-full rounded-full bg-yellow-500"
-              style={{ width: `${sliderPosition * 100}%` }}
-            />
-            <div
-              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-white border-2 border-gray-300 cursor-pointer"
-              style={{
-                left: `calc(${sliderPosition * 100}% - ${sliderRef.current ? (sliderRef.current.offsetWidth < 400 ? '8px' : '12px') : '12px'})`,
-              }}
-            />
-          </div>
-        </div>
-
         {/* Start Button */}
         <div className="text-center mt-4 sm:mt-6">
           <button
@@ -163,9 +153,7 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
         </div>
 
         {/* Tip */}
-        <div className="text-center text-xs sm:text-sm text-gray-500 mt-2 sm:mt-4">
-          💡 Tip: Corner spots are safe but harder to expand from... use wisely!
-        </div>
+        <div className="text-center text-xs sm:text-sm text-gray-500 mt-2 sm:mt-4">{randomTip}</div>
       </div>
     </div>
   );
