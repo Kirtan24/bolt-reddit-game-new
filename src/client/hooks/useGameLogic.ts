@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { BoardState, CellData, Player, GameState, Move, Difficulty, GameConfig, ThresholdPattern } from '../types/game';
+import { BoardState, CellData, Player, GameState, Move, Difficulty, GameConfig } from '../types/game';
 
 const BOARD_SIZE = 5;
 
@@ -32,7 +32,6 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
         aiThinkingTime: 1200,
         aiSkillLevel: 1,
         obstacleCount: 0,
-        useVariableThresholds: false,
       };
     case 'medium':
       return {
@@ -40,7 +39,6 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
         aiThinkingTime: 800,
         aiSkillLevel: 2,
         obstacleCount: 0,
-        useVariableThresholds: true,
       };
     case 'hard':
       return {
@@ -48,96 +46,59 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
         aiThinkingTime: 600,
         aiSkillLevel: 3,
         obstacleCount: 3,
-        useVariableThresholds: true,
       };
     default:
       return getGameConfig('medium');
   }
 };
 
-// Calculate threshold based on position for Medium mode
-const getMediumModeThreshold = (row: number, col: number): number => {
-  const maxIndex = BOARD_SIZE - 1;
-  
-  // Outermost border (edges)
-  if (row === 0 || row === maxIndex || col === 0 || col === maxIndex) {
-    return 2;
+// Calculate critical mass based on position and difficulty
+const getCriticalMass = (row: number, col: number, difficulty: Difficulty): number => {
+  if (difficulty === 'easy') {
+    return 4; // All cells explode at 4 orbs
   }
   
-  // Next inner layer
-  if (row === 1 || row === maxIndex - 1 || col === 1 || col === maxIndex - 1) {
-    return 3;
-  }
-  
-  // Inner cells
-  return 4;
-};
-
-// Generate random threshold pattern for Hard mode
-const generateHardModeThresholds = (): ThresholdPattern[] => {
-  const patterns: ThresholdPattern[] = [];
-  const thresholdOptions = [
-    { threshold: 2, type: 'low' as const, weight: 0.3 },
-    { threshold: 3, type: 'medium' as const, weight: 0.4 },
-    { threshold: 4, type: 'high' as const, weight: 0.3 },
-  ];
-
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const random = Math.random();
-      let cumulativeWeight = 0;
-      
-      for (const option of thresholdOptions) {
-        cumulativeWeight += option.weight;
-        if (random <= cumulativeWeight) {
-          patterns.push({
-            row,
-            col,
-            threshold: option.threshold,
-            type: option.type,
-          });
-          break;
-        }
-      }
+  if (difficulty === 'medium') {
+    const maxIndex = BOARD_SIZE - 1;
+    
+    // Outermost border
+    if (row === 0 || row === maxIndex || col === 0 || col === maxIndex) {
+      return 4; // Fixed: Medium mode border should be 4, not 2
     }
+    
+    // Second layer
+    if (row === 1 || row === maxIndex - 1 || col === 1 || col === maxIndex - 1) {
+      return 3;
+    }
+    
+    // Inner cells
+    return 4;
   }
   
-  return patterns;
+  if (difficulty === 'hard') {
+    // Random thresholds for hard mode
+    const random = Math.random();
+    if (random < 0.3) return 2;
+    if (random < 0.6) return 3;
+    return 4;
+  }
+  
+  return 4;
 };
 
 const createInitialBoard = (config: GameConfig): BoardState => {
   const board = Array.from({ length: BOARD_SIZE }, (_, row) =>
     Array.from({ length: BOARD_SIZE }, (_, col) => {
-      let criticalMass = 4; // Default for Easy mode
-      let thresholdType: 'low' | 'medium' | 'high' = 'high';
-
-      if (config.difficulty === 'medium') {
-        criticalMass = getMediumModeThreshold(row, col);
-        if (criticalMass === 2) thresholdType = 'low';
-        else if (criticalMass === 3) thresholdType = 'medium';
-        else thresholdType = 'high';
-      }
-
+      const criticalMass = getCriticalMass(row, col, config.difficulty);
+      
       return {
         owner: 'empty' as Player,
         count: 0,
         criticalMass,
         isObstacle: false,
-        thresholdType,
       };
     })
   );
-
-  // Apply Hard mode random thresholds
-  if (config.difficulty === 'hard') {
-    const hardThresholds = generateHardModeThresholds();
-    hardThresholds.forEach(({ row, col, threshold, type }) => {
-      if (board[row] && board[row][col]) {
-        board[row][col].criticalMass = threshold;
-        board[row][col].thresholdType = type;
-      }
-    });
-  }
 
   // Add obstacles for hard mode
   if (config.difficulty === 'hard' && config.obstacleCount > 0) {
@@ -213,8 +174,8 @@ export const useGameLogic = () => {
       }
     }
 
-    if (playerOrbs === 0) return 'ai';
-    if (aiOrbs === 0) return 'player';
+    if (playerOrbs === 0 && aiOrbs > 0) return 'ai';
+    if (aiOrbs === 0 && playerOrbs > 0) return 'player';
     return null;
   }, [board, gameState]);
 
@@ -222,6 +183,7 @@ export const useGameLogic = () => {
     const moves: Move[] = [];
     let playerHasOrbs = false;
 
+    // Check if current player has any orbs on the board
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         if (board[row][col].owner === currentPlayer) {
@@ -240,10 +202,12 @@ export const useGameLogic = () => {
         if (cell.isObstacle) continue;
 
         if (!playerHasOrbs) {
+          // First move: can place on any empty cell
           if (cell.owner === 'empty') {
             moves.push({ row, col });
           }
         } else {
+          // Subsequent moves: can only place on own cells
           if (cell.owner === currentPlayer) {
             moves.push({ row, col });
           }
@@ -254,47 +218,64 @@ export const useGameLogic = () => {
     return moves;
   }, [board, currentPlayer]);
 
-  const getNextExplosionStep = (state: BoardState): BoardState | null => {
-    const newBoard = state.map((row) => row.map((cell) => ({ ...cell })));
-    const explosions: Move[] = [];
+  const processExplosions = useCallback(async (initialBoard: BoardState): Promise<BoardState> => {
+    let currentBoard = initialBoard.map(row => row.map(cell => ({ ...cell })));
+    let explosionOccurred = true;
+    let iterationCount = 0;
+    const maxIterations = 50; // Prevent infinite loops
 
-    for (let row = 0; row < BOARD_SIZE; row++) {
-      for (let col = 0; col < BOARD_SIZE; col++) {
-        const cell = newBoard[row][col];
-        if (
-          !cell.isObstacle &&
-          cell.count >= cell.criticalMass &&
-          cell.count > 0
-        ) {
-          explosions.push({ row, col });
+    while (explosionOccurred && iterationCount < maxIterations) {
+      explosionOccurred = false;
+      iterationCount++;
+      
+      const explosions: Move[] = [];
+
+      // Find all cells that should explode
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          const cell = currentBoard[row][col];
+          if (
+            !cell.isObstacle &&
+            cell.count >= cell.criticalMass &&
+            cell.count > 0 &&
+            cell.owner !== 'empty'
+          ) {
+            explosions.push({ row, col });
+          }
         }
+      }
+
+      if (explosions.length > 0) {
+        explosionOccurred = true;
+
+        // Process all explosions simultaneously
+        for (const { row, col } of explosions) {
+          const explodingCell = currentBoard[row][col];
+          const neighbors = getNeighbors(row, col);
+          const owner = explodingCell.owner;
+
+          // Clear the exploding cell
+          explodingCell.count = 0;
+          explodingCell.owner = 'empty';
+
+          // Distribute orbs to neighbors
+          for (const neighbor of neighbors) {
+            const neighborCell = currentBoard[neighbor.row][neighbor.col];
+            if (!neighborCell.isObstacle) {
+              neighborCell.count += 1;
+              neighborCell.owner = owner;
+            }
+          }
+        }
+
+        // Update the board state and add a small delay for animation
+        setBoard(currentBoard.map(row => row.map(cell => ({ ...cell }))));
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
     }
 
-    if (explosions.length === 0) {
-      return null;
-    }
-
-    for (const { row, col } of explosions) {
-      const explodingCell = newBoard[row][col];
-      const neighbors = getNeighbors(row, col);
-      const owner = explodingCell.owner;
-
-      explodingCell.count = 0;
-      explodingCell.owner = 'empty';
-
-      for (const neighbor of neighbors) {
-        const neighborCell = newBoard[neighbor.row][neighbor.col];
-        // Don't add orbs to obstacles
-        if (!neighborCell.isObstacle) {
-          neighborCell.count += 1;
-          neighborCell.owner = owner;
-        }
-      }
-    }
-
-    return newBoard;
-  };
+    return currentBoard;
+  }, []);
 
   const checkWinCondition = useCallback((state: BoardState): Player | null => {
     let playerOrbs = 0;
@@ -310,8 +291,8 @@ export const useGameLogic = () => {
     const totalOrbs = playerOrbs + aiOrbs;
     if (totalOrbs < 2) return null;
 
-    if (playerOrbs === 0) return 'ai';
-    if (aiOrbs === 0) return 'player';
+    if (playerOrbs === 0 && aiOrbs > 0) return 'ai';
+    if (aiOrbs === 0 && playerOrbs > 0) return 'player';
     return null;
   }, []);
 
@@ -325,30 +306,44 @@ export const useGameLogic = () => {
 
       setIsAnimating(true);
 
-      // Apply the click
+      // Check if this is the first move for this player
+      let playerHasOrbs = false;
+      for (const boardRow of board) {
+        for (const cell of boardRow) {
+          if (cell.owner === currentPlayer) {
+            playerHasOrbs = true;
+            break;
+          }
+        }
+        if (playerHasOrbs) break;
+      }
+
+      // Apply the move with optimized first move logic
       let newBoard = board.map((boardRow, r) =>
         boardRow.map((boardCell, c) => {
           if (r === row && c === col) {
-            return {
-              ...boardCell,
-              owner: currentPlayer,
-              count: boardCell.count + 1,
-            };
+            const cell = { ...boardCell };
+            cell.owner = currentPlayer;
+            
+            if (!playerHasOrbs) {
+              // First move: place optimal number of orbs
+              const optimalCount = Math.max(1, cell.criticalMass - 1);
+              cell.count = optimalCount;
+            } else {
+              // Regular move: add one orb
+              cell.count += 1;
+            }
+            
+            return cell;
           }
           return { ...boardCell };
         })
       );
+
       setBoard(newBoard);
 
       // Process explosions
-      while (true) {
-        const nextStep = getNextExplosionStep(newBoard);
-        if (!nextStep) break;
-
-        newBoard = nextStep;
-        setBoard(newBoard);
-        await new Promise((resolve) => setTimeout(resolve, 300));
-      }
+      newBoard = await processExplosions(newBoard);
 
       // Check for winner
       const gameWinner = checkWinCondition(newBoard);
@@ -362,7 +357,7 @@ export const useGameLogic = () => {
 
       return true;
     },
-    [board, currentPlayer, gameState, isAnimating, getValidMoves, checkWinCondition]
+    [board, currentPlayer, gameState, isAnimating, getValidMoves, processExplosions, checkWinCondition]
   );
 
   const startGame = useCallback((difficulty: Difficulty) => {

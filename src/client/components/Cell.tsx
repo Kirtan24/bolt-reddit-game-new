@@ -51,18 +51,10 @@ export const Cell: React.FC<CellProps> = ({
           ? 'ring-2 ring-red-400'
           : 'ring-1 ring-slate-600';
 
-  // Get threshold indicator color
   const getThresholdColor = () => {
-    switch (cell.thresholdType) {
-      case 'low':
-        return 'text-green-400';
-      case 'medium':
-        return 'text-yellow-400';
-      case 'high':
-        return 'text-red-400';
-      default:
-        return 'text-white/40';
-    }
+    if (cell.criticalMass === 2) return 'text-green-400';
+    if (cell.criticalMass === 3) return 'text-yellow-400';
+    return 'text-red-400';
   };
 
   return (
