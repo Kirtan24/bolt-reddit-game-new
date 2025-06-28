@@ -1,124 +1,94 @@
-# ⚡ Chain Reaction - Silly Sh!t Challenge Entry 🎮
+# Chain Reaction - Strategic Orb Game
 
-> **The most ridiculously fun orb explosion game ever built!**
+A strategic orb placement game built with Bolt x Devvit for Reddit's Developer Platform.
 
-Built for Reddit's **Silly Sh!t Challenge** using **Bolt x Devvit** - because sometimes the most pointless things bring the most joy! 🎪
+## About
 
-## 🎯 What is this madness?
+Chain Reaction is a strategic game where you place orbs on a grid to trigger explosive chain reactions. Battle against an intelligent AI opponent across three difficulty levels. The goal is to eliminate all enemy orbs through strategic placement and chain reactions.
 
-Chain Reaction is a strategic orb placement game where you battle an AI with questionable morals. Place orbs, trigger explosive chain reactions, and watch the beautiful chaos unfold! It serves absolutely no real purpose except maximum entertainment.
+## Features
 
-### 🔥 Features That Make No Sense But Are Awesome:
+- **Strategic Gameplay**: Plan your moves carefully to trigger maximum chain reactions
+- **AI Opponent**: Battle against intelligent AI with three difficulty levels
+- **Chain Reactions**: Watch orbs explode in cascading effects
+- **Responsive Design**: Optimized for all devices
+- **Sound Effects**: Immersive audio feedback
+- **Dynamic Colors**: Random color schemes for each game
 
-- **💥 Epic Chain Reactions**: Watch orbs explode in glorious cascading chaos
-- **🤖 Evil AI Opponent**: Battle an AI programmed with just the right amount of sass
-- **🎨 Rainbow Chaos**: Every game has different colors because why not?
-- **🎪 Three Difficulty Levels**:
-  - 🍼 **Baby Mode**: For couch potatoes & your grandma
-  - 🧠 **Normal Human**: For average mortals & office workers  
-  - 👹 **Chaos Lord**: For masochists & keyboard warriors
-- **🎵 Silly Sound Effects**: Procedurally generated audio chaos
-- **📱 Mobile Optimized**: Play anywhere, anytime, for no good reason
-
-## 🚀 Getting Started (The Chaos Setup)
+## Getting Started
 
 This template is made specifically to work with **Bolt.new** and Reddit's Developer Platform.
 
-### Step 1: Authentication Dance 💃
+### Step 1: Authentication
 ```bash
 npm run login
 ```
-Follow the link, paste the code, feel the power!
+Follow the instructions in the terminal to authenticate with Reddit.
 
-### Step 2: App Initialization Ritual 🔮
+### Step 2: App Initialization
 ```bash
 npm run devvit:init
 ```
-More links, more codes, more power!
+Follow the instructions to set up your app remotely.
 
-### Step 3: Subreddit Configuration 🏠
+### Step 3: Subreddit Configuration
 1. Create a test subreddit on Reddit
-2. Update `YOUR_SUBREDDIT_NAME` in `package.json` 
+2. Update `YOUR_SUBREDDIT_NAME` in the `dev:devvit` script in `package.json`
 3. Replace it with your subreddit name (without the r/)
 
-### Step 4: Unleash the Chaos! 🎪
+### Step 4: Start Development
 ```bash
 npm run dev
 ```
 
-## 🎮 How to Play (The Art of Orb Warfare)
+## How to Play
 
-1. **Choose Your Doom**: Pick a difficulty level
-2. **Place Orbs**: Click empty cells or your own orbs
-3. **Trigger Chaos**: When orbs reach critical mass (4), they explode!
-4. **Chain Reactions**: Explosions spread to neighboring cells
-5. **Dominate**: Eliminate all enemy orbs to win!
+1. **Choose Difficulty**: Select Easy, Medium, or Hard
+2. **Place Orbs**: Click empty cells or your own orbs to add more
+3. **Trigger Reactions**: When orbs reach critical mass (4), they explode
+4. **Chain Effects**: Explosions spread to neighboring cells
+5. **Win Condition**: Eliminate all enemy orbs
 
-### 🧠 Pro Tips for Maximum Chaos:
-- Corners are safe but boring AF 😴
-- Rush the center like a maniac! 🏃‍♂️
-- Chain reactions = pure dopamine 💉
-- Watch the AI... it's plotting your doom! 🕵️
+## Game Rules
 
-## 🏗️ Project Structure (The Organized Chaos)
+- Each cell has a critical mass of 4 orbs
+- When a cell reaches critical mass, it explodes and spreads orbs to adjacent cells
+- Explosions can trigger chain reactions
+- You can only place orbs in empty cells or cells you own
+- The game ends when one player has no orbs remaining
+
+## Project Structure
 
 ```
 src/
-├── devvit/          # Reddit app (no React here!)
-├── client/          # Full-screen React webview
-├── server/          # Serverless Node.js backend  
-└── shared/          # Shared types & utilities
+├── devvit/          # Reddit app integration
+├── client/          # React frontend
+├── server/          # Node.js backend
+└── shared/          # Shared types and utilities
 ```
 
-## 🎪 Silly Sh!t Challenge Compliance
+## Technologies Used
 
-This project perfectly embodies the spirit of the Silly Sh!t Challenge:
+- **React**: Frontend framework
+- **TypeScript**: Type safety
+- **Tailwind CSS**: Styling
+- **Devvit**: Reddit platform integration
+- **Vite**: Build tool
+- **Web Audio API**: Sound effects
 
-✅ **Completely Pointless**: Serves no real purpose except fun  
-✅ **Maximum Silliness**: Over-the-top animations and sound effects  
-✅ **Hilariously Impractical**: Why would anyone need this? Who cares!  
-✅ **Pure Joy**: Makes you upvote without knowing why  
-✅ **Reddit Integration**: Built specifically for the Reddit community  
+## Deployment
 
-## 🏆 Built With Love & Chaos
+The project is deployment-ready with:
+- Optimized build configuration
+- Progressive loading screens
+- SEO-optimized HTML
+- Mobile-responsive design
+- Reddit platform integration
 
-- **⚡ Bolt.new**: For rapid prototyping and maximum vibes
-- **🤖 Reddit Devvit**: For seamless Reddit integration
-- **⚛️ React**: For the interactive chaos interface
-- **🎨 Tailwind CSS**: For beautiful, responsive design
-- **🔊 Web Audio API**: For procedurally generated silly sounds
-- **☕ Caffeine**: Lots and lots of caffeine
+## License
 
-## 🎯 Deployment Ready Features
-
-- **📱 Responsive Design**: Works on all devices
-- **🚀 Optimized Loading**: Progressive loading screens
-- **🎪 Launch Page**: Epic entry experience
-- **🔊 Sound Effects**: Immersive audio feedback
-- **🎨 Dynamic Colors**: Random color schemes each game
-- **📊 Game Stats**: Track your chaos levels
-
-## 🤝 Contributing to the Chaos
-
-Want to make this even more ridiculously awesome? 
-
-1. Fork the chaos
-2. Add more silliness
-3. Submit a pull request
-4. Embrace the madness
-
-## 📜 License
-
-BSD-3-Clause - Because even chaos needs rules!
-
-## 🎪 Final Words
-
-This game exists purely to bring joy, confusion, and mild addiction to orb explosions. It's the digital equivalent of bubble wrap - completely unnecessary but impossibly satisfying.
-
-**Built for Reddit's Silly Sh!t Challenge 2025** 🏆
-
-*"Sometimes the most pointless things bring the most joy"* - Ancient Reddit Wisdom
+BSD-3-Clause
 
 ---
 
-⚡ **Powered by Bolt x Devvit** • Made with 🧠, ☕, and maximum chaos! ⚡
+Built with Bolt x Devvit
