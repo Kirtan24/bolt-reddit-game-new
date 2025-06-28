@@ -24,25 +24,25 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   const baseColor = isPlayerWin ? playerColor : aiColor;
 
   const victoryMessages = [
-    '💀 Death Dealer Supreme! 💀',
-    '⛓️ Chain Master Victorious! ⛓️',
-    '🏆 Spread Champion! 🏆',
-    '💥 Explosion Expert! 💥',
-    '👑 Orb Overlord! 👑',
-    '🔥 Chaos Controller! 🔥',
-    '⚡ Reaction Ruler! ⚡',
-    '💀 Spread \'Til Victory! 💀',
+    'Death Dealer Supreme!',
+    'Chain Master Victorious!',
+    'Spread Champion!',
+    'Explosion Expert!',
+    'Orb Overlord!',
+    'Chaos Controller!',
+    'Reaction Ruler!',
+    'Spread \'Til Victory!',
   ];
 
   const defeatMessages = [
-    '💀 Spread \'Til Dead! 💀',
-    '⛓️ Chained by AI! ⛓️',
-    '🤖 Robot Rampage! 🤖',
-    '💥 AI Annihilation! 💥',
-    '😵 Orb Obliterated! 😵',
-    '🔥 Burned by Bots! 🔥',
-    '⚡ Zapped by AI! ⚡',
-    '💀 Death by Algorithm! 💀',
+    'Spread \'Til Dead!',
+    'Chained by AI!',
+    'Robot Rampage!',
+    'AI Annihilation!',
+    'Orb Obliterated!',
+    'Burned by Bots!',
+    'Zapped by AI!',
+    'Death by Algorithm!',
   ];
 
   const sillySubtexts = [
@@ -72,25 +72,25 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           boxShadow: `0px 0px 40px ${baseColor}66`,
         }}
       >
-        {/* Floating background elements */}
+        {/* Simple floating background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 6 }, (_, i) => (
+          {Array.from({ length: 4 }, (_, i) => (
             <div
               key={i}
               className="absolute text-lg opacity-10 animate-pulse"
               style={{
-                left: `${10 + (i * 15)}%`,
-                top: `${10 + (i * 15)}%`,
-                animationDelay: `${i * 0.3}s`,
-                animationDuration: '2s',
+                left: `${20 + (i * 20)}%`,
+                top: `${20 + (i * 20)}%`,
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: '3s',
               }}
             >
-              {i % 3 === 0 ? '💀' : i % 3 === 1 ? '⛓️' : '💥'}
+              {i % 2 === 0 ? '💀' : '⛓️'}
             </div>
           ))}
         </div>
 
-        {/* Main icon with animation */}
+        {/* Main icon */}
         <div className="relative z-10 mb-6">
           <div className={`text-8xl ${isPlayerWin ? 'animate-bounce' : 'animate-pulse'}`}>
             {isPlayerWin ? '👑' : '💀'}
@@ -108,12 +108,12 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           {message}
         </h2>
 
-        {/* Silly subtext */}
+        {/* Simple subtext */}
         <p className="text-gray-300 text-lg font-medium mb-4 relative z-10">
           {subtext}
         </p>
 
-        {/* Difficulty and stats */}
+        {/* Simple stats */}
         <div className="bg-gray-800/80 rounded-xl p-4 mb-6 w-full relative z-10 border border-gray-600">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-400">Difficulty:</span>
@@ -127,7 +127,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           </div>
         </div>
 
-        {/* Action buttons */}
+        {/* Simple action buttons */}
         <div className="flex flex-col sm:flex-row gap-3 w-full relative z-10">
           <button
             onClick={onRestart}
@@ -137,14 +137,14 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               boxShadow: `0px 4px 20px ${baseColor}66`,
             }}
           >
-            💀 Spread Again 💀
+            Spread Again
           </button>
 
           <button
             onClick={onReturnToMenu}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl py-3 px-6 transition transform hover:scale-105 flex-1"
           >
-            🏠 Menu
+            Menu
           </button>
         </div>
 
@@ -153,12 +153,12 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           onClick={onClose}
           className="mt-3 bg-gray-700/50 hover:bg-gray-600/60 text-gray-300 font-bold rounded-lg py-2 px-4 text-sm transition transform hover:scale-105 relative z-10"
         >
-          ✕ Close
+          Close
         </button>
 
-        {/* Bottom slogan */}
+        {/* Simple slogan */}
         <div className="mt-4 text-xs text-yellow-400/80 relative z-10">
-          ⛓️ Chain it. Break it. Rule it. ⛓️
+          Chain it. Break it. Rule it.
         </div>
       </div>
     </div>

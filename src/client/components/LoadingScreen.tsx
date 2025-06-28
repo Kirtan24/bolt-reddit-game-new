@@ -40,54 +40,70 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 flex flex-col items-center justify-center overflow-hidden">
-      {/* Consistent silly background animation */}
+      {/* Perfect consistent background animation across entire screen */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Floating skulls */}
-        {Array.from({ length: 8 }, (_, i) => (
+        {/* Floating skulls everywhere */}
+        {Array.from({ length: 15 }, (_, i) => (
           <div
             key={`skull-${i}`}
-            className="absolute text-2xl opacity-10 animate-pulse"
+            className="absolute text-2xl opacity-8 animate-pulse"
             style={{
-              left: `${10 + (i * 12)}%`,
-              top: `${15 + (i * 8)}%`,
-              animationDelay: `${i * 0.5}s`,
-              animationDuration: '3s',
-              transform: `rotate(${Math.random() * 360}deg)`,
+              left: `${(i * 7) % 100}%`,
+              top: `${(i * 11) % 100}%`,
+              animationDelay: `${i * 0.3}s`,
+              animationDuration: '4s',
+              transform: `rotate(${i * 24}deg)`,
             }}
           >
             💀
           </div>
         ))}
         
-        {/* Floating chains */}
-        {Array.from({ length: 6 }, (_, i) => (
+        {/* Floating chains everywhere */}
+        {Array.from({ length: 12 }, (_, i) => (
           <div
             key={`chain-${i}`}
-            className="absolute text-xl opacity-8 animate-bounce"
+            className="absolute text-xl opacity-6 animate-bounce"
             style={{
-              right: `${5 + (i * 15)}%`,
-              bottom: `${10 + (i * 12)}%`,
-              animationDelay: `${i * 0.7}s`,
-              animationDuration: '4s',
+              left: `${(i * 8.5) % 100}%`,
+              top: `${(i * 13) % 100}%`,
+              animationDelay: `${i * 0.5}s`,
+              animationDuration: '5s',
             }}
           >
             ⛓️
           </div>
         ))}
 
-        {/* Floating orbs */}
-        {Array.from({ length: 12 }, (_, i) => (
+        {/* Floating orbs everywhere */}
+        {Array.from({ length: 20 }, (_, i) => (
           <div
             key={`orb-${i}`}
-            className="absolute w-3 h-3 rounded-full opacity-15"
+            className="absolute w-3 h-3 rounded-full opacity-12"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${(i * 5.2) % 100}%`,
+              top: `${(i * 7.8) % 100}%`,
               backgroundColor: i % 2 === 0 ? '#3B82F6' : '#EF4444',
-              animation: `float ${2 + Math.random() * 3}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`,
+              animation: `float ${3 + (i % 3)}s ease-in-out infinite`,
+              animationDelay: `${i * 0.2}s`,
             }}
           />
+        ))}
+
+        {/* Explosion effects */}
+        {Array.from({ length: 8 }, (_, i) => (
+          <div
+            key={`explosion-${i}`}
+            className="absolute text-lg opacity-5 animate-pulse"
+            style={{
+              left: `${(i * 12.5) % 100}%`,
+              top: `${(i * 15.7) % 100}%`,
+              animationDelay: `${i * 0.8}s`,
+              animationDuration: '6s',
+            }}
+          >
+            💥
+          </div>
         ))}
       </div>
 
@@ -104,7 +120,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
 
         {/* Slogan */}
         <p className="text-xl font-semibold text-yellow-400 mb-6">
-          ⛓️ Chain it. Break it. Rule it. ⛓️
+          Chain it. Break it. Rule it.
         </p>
 
         {/* Dynamic loading text */}

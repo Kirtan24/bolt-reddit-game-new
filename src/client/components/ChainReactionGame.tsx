@@ -82,7 +82,7 @@ export const ChainReactionGame: React.FC = () => {
 
   const handleStartGame = useCallback(() => {
     startGame(selectedDifficulty);
-    playSound('restart');
+    playSound('modeSelect');
   }, [startGame, selectedDifficulty, playSound]);
 
   const handleRestart = useCallback(() => {
@@ -94,8 +94,13 @@ export const ChainReactionGame: React.FC = () => {
   const handleReturnToMenu = useCallback(() => {
     setShowGameOver(false);
     returnToMenu();
-    playSound('restart');
+    playSound('menuReturn');
   }, [returnToMenu, playSound]);
+
+  const handleDifficultyChange = useCallback((difficulty: Difficulty) => {
+    setSelectedDifficulty(difficulty);
+    playSound('modeSelect');
+  }, [playSound]);
 
   const playerCount = board.flat().filter((cell) => cell.owner === 'player').length;
   const aiCount = board.flat().filter((cell) => cell.owner === 'ai').length;
@@ -104,7 +109,7 @@ export const ChainReactionGame: React.FC = () => {
     return (
       <GameModeSelector
         selectedDifficulty={selectedDifficulty}
-        onDifficultyChange={setSelectedDifficulty}
+        onDifficultyChange={handleDifficultyChange}
         onStartGame={handleStartGame}
       />
     );
@@ -124,34 +129,34 @@ export const ChainReactionGame: React.FC = () => {
       className="fixed inset-0 flex flex-col items-center justify-center transition-colors duration-500 p-4 overflow-hidden"
       style={backgroundStyle}
     >
-      {/* Consistent silly background animation - NEVER changes */}
+      {/* Perfect consistent background animation - NEVER changes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Floating skulls */}
-        {Array.from({ length: 6 }, (_, i) => (
+        {/* Floating skulls across the entire screen */}
+        {Array.from({ length: 15 }, (_, i) => (
           <div
             key={`skull-${i}`}
             className="absolute text-2xl opacity-8 animate-pulse"
             style={{
-              left: `${10 + (i * 15)}%`,
-              top: `${20 + (i * 12)}%`,
-              animationDelay: `${i * 0.8}s`,
+              left: `${(i * 7) % 100}%`,
+              top: `${(i * 11) % 100}%`,
+              animationDelay: `${i * 0.3}s`,
               animationDuration: '4s',
-              transform: `rotate(${i * 45}deg)`,
+              transform: `rotate(${i * 24}deg)`,
             }}
           >
             💀
           </div>
         ))}
         
-        {/* Floating chains */}
-        {Array.from({ length: 4 }, (_, i) => (
+        {/* Floating chains across the screen */}
+        {Array.from({ length: 12 }, (_, i) => (
           <div
             key={`chain-${i}`}
             className="absolute text-xl opacity-6 animate-bounce"
             style={{
-              right: `${5 + (i * 20)}%`,
-              bottom: `${15 + (i * 15)}%`,
-              animationDelay: `${i * 1.2}s`,
+              left: `${(i * 8.5) % 100}%`,
+              top: `${(i * 13) % 100}%`,
+              animationDelay: `${i * 0.5}s`,
               animationDuration: '5s',
             }}
           >
@@ -159,19 +164,35 @@ export const ChainReactionGame: React.FC = () => {
           </div>
         ))}
 
-        {/* Floating orbs */}
-        {Array.from({ length: 8 }, (_, i) => (
+        {/* Floating orbs everywhere */}
+        {Array.from({ length: 20 }, (_, i) => (
           <div
             key={`orb-${i}`}
             className="absolute w-3 h-3 rounded-full opacity-12"
             style={{
-              left: `${5 + (i * 12)}%`,
-              top: `${10 + (i * 10)}%`,
+              left: `${(i * 5.2) % 100}%`,
+              top: `${(i * 7.8) % 100}%`,
               backgroundColor: i % 2 === 0 ? '#3B82F6' : '#EF4444',
               animation: `float ${3 + (i % 3)}s ease-in-out infinite`,
-              animationDelay: `${i * 0.5}s`,
+              animationDelay: `${i * 0.2}s`,
             }}
           />
+        ))}
+
+        {/* Explosion effects */}
+        {Array.from({ length: 8 }, (_, i) => (
+          <div
+            key={`explosion-${i}`}
+            className="absolute text-lg opacity-5 animate-pulse"
+            style={{
+              left: `${(i * 12.5) % 100}%`,
+              top: `${(i * 15.7) % 100}%`,
+              animationDelay: `${i * 0.8}s`,
+              animationDuration: '6s',
+            }}
+          >
+            💥
+          </div>
         ))}
       </div>
 

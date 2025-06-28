@@ -8,7 +8,9 @@ type SoundType =
   | 'invalid'
   | 'restart'
   | 'aiPlace'
-  | 'playerPlace';
+  | 'playerPlace'
+  | 'modeSelect'
+  | 'menuReturn';
 
 export const useSoundEffects = () => {
   const playSound = useCallback((soundType: SoundType) => {
@@ -96,6 +98,61 @@ export const useSoundEffects = () => {
         processing.connect(processingGain).connect(audioContext.destination);
         processing.start(now + 0.08);
         processing.stop(now + 0.12);
+        break;
+      }
+
+      case 'modeSelect': {
+        // Perfect mode selection sound
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(gain).connect(audioContext.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+
+        // Add confirmation beep
+        const confirm = audioContext.createOscillator();
+        const confirmGain = audioContext.createGain();
+        confirm.type = 'sine';
+        confirm.frequency.value = 1000;
+        confirmGain.gain.setValueAtTime(0.15, now + 0.1);
+        confirmGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        confirm.connect(confirmGain).connect(audioContext.destination);
+        confirm.start(now + 0.1);
+        confirm.stop(now + 0.2);
+        break;
+      }
+
+      case 'menuReturn': {
+        // Perfect menu return sound
+        const notes = [800, 600, 400]; // Descending melody
+        notes.forEach((freq, i) => {
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.15, now + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.15);
+          osc.connect(gain).connect(audioContext.destination);
+          osc.start(now + i * 0.08);
+          osc.stop(now + i * 0.08 + 0.15);
+        });
+
+        // Add soft "whoosh" effect
+        const whoosh = audioContext.createOscillator();
+        const whooshGain = audioContext.createGain();
+        whoosh.type = 'sawtooth';
+        whoosh.frequency.setValueAtTime(200, now + 0.2);
+        whoosh.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+        whooshGain.gain.setValueAtTime(0.1, now + 0.2);
+        whooshGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        whoosh.connect(whooshGain).connect(audioContext.destination);
+        whoosh.start(now + 0.2);
+        whoosh.stop(now + 0.4);
         break;
       }
 
