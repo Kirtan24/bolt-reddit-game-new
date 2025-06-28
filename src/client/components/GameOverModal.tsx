@@ -65,61 +65,63 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        className="rounded-3xl p-8 flex flex-col items-center justify-center text-center max-w-md w-full relative overflow-hidden"
+        className="relative rounded-3xl p-8 flex flex-col items-center justify-center text-center max-w-md w-full overflow-hidden"
         style={{
-          backgroundColor: 'rgba(15, 15, 15, 0.95)',
+          backgroundColor: 'rgba(20, 20, 20, 0.95)',
           border: `3px solid ${baseColor}`,
-          boxShadow: `0px 0px 40px ${baseColor}66`,
+          boxShadow: `0 0 30px ${baseColor}55`,
         }}
       >
-        {/* Simple floating background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 4 }, (_, i) => (
-            <div
-              key={i}
-              className="absolute text-lg opacity-10 animate-pulse"
-              style={{
-                left: `${20 + (i * 20)}%`,
-                top: `${20 + (i * 20)}%`,
-                animationDelay: `${i * 0.5}s`,
-                animationDuration: '3s',
-              }}
-            >
-              {i % 2 === 0 ? '💀' : '⛓️'}
-            </div>
-          ))}
+        {/* Animated diagonal emojis */}
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+          {[...Array(12)].map((_, i) => {
+            const icons = ['💀', '⛓️', '💥'];
+            const icon = icons[i % icons.length];
+            return (
+              <div
+                key={i}
+                className="absolute text-lg opacity-10 animate-pulse"
+                style={{
+                  top: `${(i * 10 + 15) % 100}vh`,
+                  left: `${(i * 13 + 10) % 100}vw`,
+                  animationDelay: `${i * 0.2}s`,
+                  animationDuration: `${3 + (i % 3)}s`,
+                }}
+              >
+                {icon}
+              </div>
+            );
+          })}
         </div>
 
-        {/* Main icon */}
-        <div className="relative z-10 mb-6">
-          <div className={`text-8xl ${isPlayerWin ? 'animate-bounce' : 'animate-pulse'}`}>
+        {/* Main Icon */}
+        <div className="relative z-10 mb-6 text-7xl sm:text-8xl">
+          <span className={isPlayerWin ? 'animate-bounce' : 'animate-pulse'}>
             {isPlayerWin ? '👑' : '💀'}
-          </div>
+          </span>
         </div>
 
-        {/* Main message */}
+        {/* Victory / Defeat */}
         <h2
-          className="text-3xl md:text-4xl font-extrabold mb-4 relative z-10"
+          className="text-3xl md:text-4xl font-extrabold mb-2 z-10"
           style={{
             color: baseColor,
-            textShadow: `0px 0px 15px ${baseColor}aa`,
+            textShadow: `0 0 15px ${baseColor}aa`,
           }}
         >
           {message}
         </h2>
 
-        {/* Simple subtext */}
-        <p className="text-gray-300 text-lg font-medium mb-4 relative z-10">
-          {subtext}
-        </p>
+        {/* Subtext */}
+        <p className="text-gray-300 text-lg font-medium mb-4 z-10">{subtext}</p>
 
-        {/* Simple stats */}
-        <div className="bg-gray-800/80 rounded-xl p-4 mb-6 w-full relative z-10 border border-gray-600">
-          <div className="flex justify-between items-center mb-2">
+        {/* Game Info */}
+        <div className="bg-gray-800/80 rounded-xl border border-gray-600 p-4 mb-6 w-full z-10">
+          <div className="flex justify-between mb-2">
             <span className="text-sm text-gray-400">Difficulty:</span>
             <span className="font-bold text-white">{difficulty.toUpperCase()}</span>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between">
             <span className="text-sm text-gray-400">Result:</span>
             <span className="font-bold" style={{ color: baseColor }}>
               {isPlayerWin ? 'VICTORY' : 'DEFEAT'}
@@ -127,14 +129,14 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           </div>
         </div>
 
-        {/* Simple action buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 w-full relative z-10">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 w-full z-10">
           <button
             onClick={onRestart}
-            className="font-bold rounded-xl py-3 px-6 text-white transition transform hover:scale-105 flex-1"
+            className="font-bold rounded-xl py-3 px-6 text-white flex-1 transition hover:scale-105"
             style={{
               background: `linear-gradient(45deg, ${baseColor}, ${baseColor}dd)`,
-              boxShadow: `0px 4px 20px ${baseColor}66`,
+              boxShadow: `0 4px 20px ${baseColor}66`,
             }}
           >
             Spread Again
@@ -142,22 +144,22 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 
           <button
             onClick={onReturnToMenu}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl py-3 px-6 transition transform hover:scale-105 flex-1"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl py-3 px-6 flex-1 transition hover:scale-105"
           >
             Menu
           </button>
         </div>
 
-        {/* Close button */}
+        {/* Close */}
         <button
           onClick={onClose}
-          className="mt-3 bg-gray-700/50 hover:bg-gray-600/60 text-gray-300 font-bold rounded-lg py-2 px-4 text-sm transition transform hover:scale-105 relative z-10"
+          className="mt-4 text-sm font-bold text-gray-300 bg-gray-700/50 hover:bg-gray-600/60 rounded-lg px-4 py-2 z-10 transition hover:scale-105"
         >
           Close
         </button>
 
-        {/* Simple slogan */}
-        <div className="mt-4 text-xs text-yellow-400/80 relative z-10">
+        {/* Footer Slogan */}
+        <div className="mt-3 text-xs text-yellow-400/80 z-10">
           Chain it. Break it. Rule it.
         </div>
       </div>
