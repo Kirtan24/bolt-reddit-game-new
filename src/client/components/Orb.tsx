@@ -1,4 +1,3 @@
-// Updated Orb.tsx
 import React from 'react';
 import { Player } from '../types/game';
 
@@ -44,7 +43,7 @@ export const Orb: React.FC<OrbProps> = ({
       return positions[index] || '';
     }
     const angle = (index * 2 * Math.PI) / total;
-    const radius = total > 4 ? 3 : 4; // Smaller radius for more orbs
+    const radius = total > 4 ? 3 : 4;
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
     return `translate-x-[${x}px] translate-y-[${y}px]`;
@@ -57,22 +56,17 @@ export const Orb: React.FC<OrbProps> = ({
       className={`
         absolute w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full transform transition-all duration-100 ease-out
         ${getOrbPosition(index, total)}
-        ${isNearCritical ? 'animate-bounce' : 'animate-float'}
-        hover:scale-110
+        ${isNearCritical ? 'animate-bounce' : ''}
       `}
       style={{
-        animationDelay: `${index * 50}ms`, // Reduced delay for faster animations
-        animationDuration: isNearCritical ? '0.4s' : '1.8s', // Slightly faster animations
-        animationTimingFunction: isNearCritical
-          ? 'cubic-bezier(0.5, 0.5, 0.5, 0.5)'
-          : 'ease-in-out',
+        animationDelay: `${index * 50}ms`,
+        animationDuration: isNearCritical ? '0.4s' : '1.8s',
         backgroundColor: highlightColor,
         border: `1px solid ${highlightColor}aa`,
         boxShadow: `0 0 6px ${highlightColor}66`,
-        willChange: 'transform', // Optimize for performance
       }}
     >
-      {/* Highlight dot */}
+      {/* Simple highlight dot */}
       <div className="absolute top-0.5 left-0.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-white/60" />
     </div>
   );

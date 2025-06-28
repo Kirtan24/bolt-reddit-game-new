@@ -40,16 +40,16 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 flex flex-col items-center justify-center overflow-hidden">
-      {/* Floating orbs animation */}
+      {/* Minimal floating animation - just a few orbs */}
       <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 12 }, (_, i) => (
+        {Array.from({ length: 6 }, (_, i) => (
           <div
             key={i}
-            className="absolute w-3 h-3 bg-blue-400 rounded-full opacity-30"
+            className="absolute w-2 h-2 bg-blue-400 rounded-full opacity-20"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+              left: `${20 + (i * 15)}%`,
+              top: `${30 + (i * 10)}%`,
+              animation: `float ${3 + Math.random() * 2}s ease-in-out infinite`,
               animationDelay: `${Math.random() * 2}s`,
             }}
           />
@@ -57,19 +57,18 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
       </div>
 
       <div className="text-center max-w-md mx-auto p-6 relative z-10">
-        {/* Animated skull icon */}
+        {/* Simple animated skull icon */}
         <div className="mb-8">
           <div className="text-7xl animate-bounce">💀</div>
-          <div className="text-2xl mt-2 animate-pulse">⚡💥⚡</div>
         </div>
 
-        {/* Game title with glow effect */}
-        <h1 className="text-5xl font-bold text-red-400 mb-2 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse">
+        {/* Game title */}
+        <h1 className="text-5xl font-bold text-red-400 mb-2 drop-shadow-lg">
           SPREAD 'TIL DEAD
         </h1>
 
         {/* Slogan */}
-        <p className="text-xl font-semibold text-yellow-400 mb-6 animate-pulse">
+        <p className="text-xl font-semibold text-yellow-400 mb-6">
           Chain it. Break it. Rule it.
         </p>
 
@@ -78,10 +77,10 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
           {loadingTexts[currentText]}
         </p>
 
-        {/* Animated progress bar */}
+        {/* Simple progress bar */}
         <div className="w-full bg-gray-700 rounded-full h-3 mb-4 overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-red-500 rounded-full transition-all duration-300 animate-pulse"
+            className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-red-500 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -90,7 +89,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
           {progress}%
         </p>
 
-        {/* Silly loading indicators */}
+        {/* Simple loading dots */}
         <div className="flex justify-center mt-4 space-x-2">
           {[0, 1, 2].map((i) => (
             <div
@@ -104,8 +103,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
 
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(180deg); }
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
         }
       `}</style>
     </div>
