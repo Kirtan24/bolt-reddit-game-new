@@ -6,7 +6,7 @@ import { defineConfig } from '@devvit/server';
 import { postConfigNew } from '../server/core/post';
 
 defineConfig({
-  name: '[Bolt] Chain Reaction',
+  name: '[Bolt] Spread \'Til Dead',
   entry: 'index.html',
   height: 'tall',
   menu: { enable: false },
@@ -18,7 +18,7 @@ export const Preview: Devvit.BlockComponent<{ text?: string }> = ({ text = 'Load
       <vstack width={'100%'} height={'100%'} alignment="center middle" backgroundColor="#1a1a2e">
         <image
           url="loading.gif"
-          description="Loading Chain Reaction..."
+          description="Loading Spread 'Til Dead..."
           height={'140px'}
           width={'140px'}
           imageHeight={'240px'}
@@ -31,13 +31,17 @@ export const Preview: Devvit.BlockComponent<{ text?: string }> = ({ text = 'Load
           weight="bold"
           alignment="center middle"
           wrap
-          color="#ffffff"
+          color="#ef4444"
         >
-          Chain Reaction
+          💀 Spread 'Til Dead 💀
         </text>
         <spacer size="small" />
-        <text maxWidth={`80%`} size="large" alignment="center middle" wrap color="#cccccc">
-          Strategic orb placement game - trigger chain reactions to win!
+        <text maxWidth={`80%`} size="large" alignment="center middle" wrap color="#facc15">
+          ⛓️ Chain it. Break it. Rule it. ⛓️
+        </text>
+        <spacer size="small" />
+        <text maxWidth={`80%`} size="medium" alignment="center middle" wrap color="#cccccc">
+          Strategic orb placement game - trigger chain reactions to spread 'til your enemies are dead!
         </text>
         <spacer size="medium" />
         <hstack gap="medium">
@@ -45,7 +49,7 @@ export const Preview: Devvit.BlockComponent<{ text?: string }> = ({ text = 'Load
             🔵 You
           </text>
           <text size="medium" color="#ffffff">
-            VS
+            ⚔️ VS ⚔️
           </text>
           <text size="medium" color="#ff6b6b">
             🔴 AI
@@ -53,7 +57,7 @@ export const Preview: Devvit.BlockComponent<{ text?: string }> = ({ text = 'Load
         </hstack>
         <spacer size="small" />
         <text size="small" color="#888888">
-          Built with Bolt x Devvit
+          Built for the Silly Sh!t Challenge
         </text>
       </vstack>
     </zstack>
@@ -62,7 +66,7 @@ export const Preview: Devvit.BlockComponent<{ text?: string }> = ({ text = 'Load
 
 // Menu item for creating new posts
 Devvit.addMenuItem({
-  label: '[Bolt Chain Reaction]: New Game',
+  label: '[Bolt Spread \'Til Dead]: New Game',
   location: 'subreddit',
   forUserType: 'moderator',
   onPress: async (_event, context) => {
@@ -72,7 +76,7 @@ Devvit.addMenuItem({
     try {
       const subreddit = await reddit.getCurrentSubreddit();
       post = await reddit.submitPost({
-        title: '🎮 Chain Reaction - Strategic Orb Game',
+        title: '💀 Spread \'Til Dead - Chain it. Break it. Rule it. ⛓️',
         subredditName: subreddit.name,
         preview: <Preview />,
       });
@@ -80,7 +84,7 @@ Devvit.addMenuItem({
         redis: context.redis,
         postId: post.id,
       });
-      ui.showToast({ text: 'Chain Reaction game created!' });
+      ui.showToast({ text: 'Spread \'Til Dead game created! 💀' });
       ui.navigateTo(post.url);
     } catch (error) {
       if (post) {
