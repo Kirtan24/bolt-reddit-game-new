@@ -37,14 +37,14 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
     case 'easy':
       return {
         difficulty,
-        aiThinkingTime: 900,
+        aiThinkingTime: 1000,
         aiSkillLevel: 1,
         obstacleCount: 0,
       };
     case 'medium':
       return {
         difficulty,
-        aiThinkingTime: 700,
+        aiThinkingTime: 800,
         aiSkillLevel: 2,
         obstacleCount: 0,
       };
@@ -53,11 +53,32 @@ const getGameConfig = (difficulty: Difficulty): GameConfig => {
         difficulty,
         aiThinkingTime: 600,
         aiSkillLevel: 3,
-        obstacleCount: Math.floor(Math.random() * 4) + 3
+        obstacleCount: 2, // Reduced and smarter placement
       };
     default:
       return getGameConfig('medium');
   }
+};
+
+// Smart obstacle placement that ensures game remains playable
+const getSmartObstaclePositions = (count: number): Array<{row: number, col: number}> => {
+  if (count === 0) return [];
+  
+  // Define strategic but fair obstacle positions
+  const goodObstacleSpots = [
+    { row: 1, col: 1 }, // Near corner but not blocking
+    { row: 1, col: 3 }, // Near corner but not blocking
+    { row: 3, col: 1 }, // Near corner but not blocking
+    { row: 3, col: 3 }, // Near corner but not blocking
+    { row: 2, col: 1 }, // Edge middle
+    { row: 2, col: 3 }, // Edge middle
+    { row: 1, col: 2 }, // Edge middle
+    { row: 3, col: 2 }, // Edge middle
+  ];
+  
+  // Shuffle and take only what we need
+  const shuffled = [...goodObstacleSpots].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, shuffled.length));
 };
 
 const createInitialBoard = (config: GameConfig): BoardState => {
@@ -72,31 +93,13 @@ const createInitialBoard = (config: GameConfig): BoardState => {
     })
   );
 
-  // Add obstacles for hard mode
+  // Add smart obstacles for hard mode
   if (config.difficulty === 'hard' && config.obstacleCount > 0) {
-    const obstacles = new Set<string>();
-
-    while (obstacles.size < config.obstacleCount) {
-      const row = Math.floor(Math.random() * BOARD_SIZE);
-      const col = Math.floor(Math.random() * BOARD_SIZE);
-      const key = `${row}-${col}`;
-
-      // Avoid center cell and corners for better gameplay
-      if (
-        (row === 2 && col === 2) || // center
-        (row === 0 && col === 0) || // corners
-        (row === 0 && col === BOARD_SIZE - 1) ||
-        (row === BOARD_SIZE - 1 && col === 0) ||
-        (row === BOARD_SIZE - 1 && col === BOARD_SIZE - 1)
-      ) {
-        continue;
-      }
-
-      if (!obstacles.has(key)) {
-        obstacles.add(key);
-        board[row][col].isObstacle = true;
-      }
-    }
+    const obstaclePositions = getSmartObstaclePositions(config.obstacleCount);
+    
+    obstaclePositions.forEach(({ row, col }) => {
+      board[row][col].isObstacle = true;
+    });
   }
 
   return board;
@@ -155,6 +158,7 @@ export const useGameLogic = () => {
     const moves: Move[] = [];
     let playerHasOrbs = false;
 
+    // Check if current player has any orbs on the board
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         if (board[row][col].owner === currentPlayer) {
@@ -173,10 +177,12 @@ export const useGameLogic = () => {
         if (cell.isObstacle) continue;
 
         if (!playerHasOrbs) {
+          // First move: can place anywhere that's empty
           if (cell.owner === 'empty') {
             moves.push({ row, col });
           }
         } else {
+          // Subsequent moves: can only place on own cells
           if (cell.owner === currentPlayer) {
             moves.push({ row, col });
           }
@@ -191,6 +197,7 @@ export const useGameLogic = () => {
     const newBoard = state.map((row) => row.map((cell) => ({ ...cell })));
     const explosions: Move[] = [];
 
+    // Find all cells that should explode
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         const cell = newBoard[row][col];
@@ -204,14 +211,17 @@ export const useGameLogic = () => {
       return null;
     }
 
+    // Process all explosions simultaneously
     for (const { row, col } of explosions) {
       const explodingCell = newBoard[row][col];
       const neighbors = getNeighbors(row, col);
       const owner = explodingCell.owner;
 
+      // Clear the exploding cell
       explodingCell.count = 0;
       explodingCell.owner = 'empty';
 
+      // Spread to neighbors
       for (const neighbor of neighbors) {
         const neighborCell = newBoard[neighbor.row][neighbor.col];
         // Don't add orbs to obstacles
@@ -237,7 +247,7 @@ export const useGameLogic = () => {
     }
 
     const totalOrbs = playerOrbs + aiOrbs;
-    if (totalOrbs < 2) return null;
+    if (totalOrbs < 2) return null; // Need at least 2 orbs for a winner
 
     if (playerOrbs === 0) return 'ai';
     if (aiOrbs === 0) return 'player';
@@ -254,7 +264,7 @@ export const useGameLogic = () => {
 
       setIsAnimating(true);
 
-      // Apply the click
+      // Apply the initial move
       let newBoard = board.map((boardRow, r) =>
         boardRow.map((boardCell, c) => {
           if (r === row && c === col) {
@@ -269,7 +279,7 @@ export const useGameLogic = () => {
       );
       setBoard(newBoard);
 
-      // Process explosions
+      // Process chain reactions with proper timing
       while (true) {
         const nextStep = getNextExplosionStep(newBoard);
         if (!nextStep) break;
