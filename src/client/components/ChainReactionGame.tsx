@@ -42,17 +42,7 @@ export const ChainReactionGame: React.FC = () => {
       }, gameConfig.aiThinkingTime);
       return () => clearTimeout(timer);
     }
-  }, [
-    currentPlayer,
-    gameState,
-    isAnimating,
-    board,
-    gameConfig,
-    makeAIMove,
-    makeMove,
-    getValidMoves,
-    playSound,
-  ]);
+  }, [currentPlayer, gameState, isAnimating, board, gameConfig, makeAIMove, makeMove, getValidMoves, playSound]);
 
   useEffect(() => {
     if (gameState === 'finished' && winner) {
@@ -64,21 +54,18 @@ export const ChainReactionGame: React.FC = () => {
     }
   }, [gameState, winner, playSound]);
 
-  const handleCellClick = useCallback(
-    (row: number, col: number) => {
-      if (currentPlayer === 'player' && gameState === 'playing' && !isAnimating) {
-        const validMoves = getValidMoves();
-        const isValid = validMoves.some((move) => move.row === row && move.col === col);
-        if (isValid) {
-          makeMove(row, col);
-          playSound('playerPlace');
-        } else {
-          playSound('invalid');
-        }
+  const handleCellClick = useCallback((row: number, col: number) => {
+    if (currentPlayer === 'player' && gameState === 'playing' && !isAnimating) {
+      const validMoves = getValidMoves();
+      const isValid = validMoves.some((move) => move.row === row && move.col === col);
+      if (isValid) {
+        makeMove(row, col);
+        playSound('playerPlace');
+      } else {
+        playSound('invalid');
       }
-    },
-    [currentPlayer, gameState, isAnimating, makeMove, getValidMoves, playSound]
-  );
+    }
+  }, [currentPlayer, gameState, isAnimating, makeMove, getValidMoves, playSound]);
 
   const handleStartGame = useCallback(() => {
     startGame(selectedDifficulty);
@@ -119,18 +106,14 @@ export const ChainReactionGame: React.FC = () => {
     background:
       gameState === 'finished'
         ? `radial-gradient(circle, ${winner === 'player' ? playerColor : aiColor} 0%, #222 100%)`
-        : 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+        : 'radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.3) 100%)',
     minHeight: '100vh',
     overflow: 'auto',
   };
 
   return (
-    <div
-      className="fixed inset-0 flex flex-col items-center justify-center transition-colors duration-500 p-4"
-      style={backgroundStyle}
-    >
-      {/* Game Header */}
-      <div className="w-full flex justify-center">
+    <div className="fixed inset-0 flex flex-col items-center justify-center p-4 transition-colors duration-500" style={backgroundStyle}>
+      <div className="w-full flex justify-center z-10">
         <GameHeader
           currentPlayer={currentPlayer}
           gameState={gameState}
@@ -145,8 +128,7 @@ export const ChainReactionGame: React.FC = () => {
         />
       </div>
 
-      {/* Game Board - Centered */}
-      <div className="flex flex-1 items-center justify-center p-4">
+      <div className="flex flex-1 items-center justify-center p-4 z-10">
         <GameBoard
           board={board}
           onCellClick={handleCellClick}
@@ -158,7 +140,6 @@ export const ChainReactionGame: React.FC = () => {
         />
       </div>
 
-      {/* Game Over Modal */}
       {showGameOver && (
         <GameOverModal
           winner={winner}
