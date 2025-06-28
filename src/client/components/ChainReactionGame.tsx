@@ -124,21 +124,54 @@ export const ChainReactionGame: React.FC = () => {
       className="fixed inset-0 flex flex-col items-center justify-center transition-colors duration-500 p-4 overflow-hidden"
       style={backgroundStyle}
     >
-      {/* Minimal silly background - just a few floating skulls */}
+      {/* Consistent silly background animation - NEVER changes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 3 }, (_, i) => (
+        {/* Floating skulls */}
+        {Array.from({ length: 6 }, (_, i) => (
           <div
             key={`skull-${i}`}
-            className="absolute text-xl opacity-5 animate-pulse"
+            className="absolute text-2xl opacity-8 animate-pulse"
             style={{
-              left: `${20 + (i * 30)}%`,
-              top: `${20 + (i * 20)}%`,
-              animationDelay: `${i * 2}s`,
+              left: `${10 + (i * 15)}%`,
+              top: `${20 + (i * 12)}%`,
+              animationDelay: `${i * 0.8}s`,
               animationDuration: '4s',
+              transform: `rotate(${i * 45}deg)`,
             }}
           >
             💀
           </div>
+        ))}
+        
+        {/* Floating chains */}
+        {Array.from({ length: 4 }, (_, i) => (
+          <div
+            key={`chain-${i}`}
+            className="absolute text-xl opacity-6 animate-bounce"
+            style={{
+              right: `${5 + (i * 20)}%`,
+              bottom: `${15 + (i * 15)}%`,
+              animationDelay: `${i * 1.2}s`,
+              animationDuration: '5s',
+            }}
+          >
+            ⛓️
+          </div>
+        ))}
+
+        {/* Floating orbs */}
+        {Array.from({ length: 8 }, (_, i) => (
+          <div
+            key={`orb-${i}`}
+            className="absolute w-3 h-3 rounded-full opacity-12"
+            style={{
+              left: `${5 + (i * 12)}%`,
+              top: `${10 + (i * 10)}%`,
+              backgroundColor: i % 2 === 0 ? '#3B82F6' : '#EF4444',
+              animation: `float ${3 + (i % 3)}s ease-in-out infinite`,
+              animationDelay: `${i * 0.5}s`,
+            }}
+          />
         ))}
       </div>
 
@@ -183,6 +216,13 @@ export const ChainReactionGame: React.FC = () => {
           difficulty={gameConfig.difficulty}
         />
       )}
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-12px) rotate(180deg); }
+        }
+      `}</style>
     </div>
   );
 };

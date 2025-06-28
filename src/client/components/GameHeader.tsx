@@ -60,8 +60,9 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-3 w-full max-w-4xl mx-auto space-y-3">
-      <div className="flex items-center space-x-4">
+    <div className="flex flex-col items-center justify-center p-3 w-full max-w-4xl mx-auto space-y-4">
+      {/* Title and Difficulty */}
+      <div className="flex flex-col items-center space-y-2">
         <h1 className="text-2xl md:text-4xl font-bold text-red-400 drop-shadow-lg">
           💀 Spread 'Til Dead
         </h1>
@@ -77,6 +78,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         </div>
       </div>
 
+      {/* Player vs AI Section */}
       <div className="flex flex-col md:flex-row items-center justify-center md:justify-between w-full gap-3 md:gap-4">
         <div className="flex items-center justify-center space-x-4">
           {/* You Section */}
@@ -147,11 +149,12 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         </div>
       </div>
 
+      {/* Status */}
       <div className={`text-lg md:text-2xl font-bold text-white ${isAnimating && 'animate-pulse'}`}>
         {getStatusText()}
       </div>
 
-      {/* Simple slogan */}
+      {/* Slogan */}
       <div className="text-sm text-yellow-400 font-semibold">
         ⛓️ Chain it. Break it. Rule it. ⛓️
       </div>

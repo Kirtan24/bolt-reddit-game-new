@@ -55,29 +55,55 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 overflow-hidden">
-      {/* Minimal silly background - just one floating skull */}
+      {/* Consistent silly background animation */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute text-6xl opacity-5 animate-pulse"
-          style={{
-            left: '10%',
-            top: '20%',
-            animationDuration: '3s',
-          }}
-        >
-          💀
-        </div>
-        <div
-          className="absolute text-4xl opacity-5 animate-pulse"
-          style={{
-            right: '15%',
-            bottom: '25%',
-            animationDuration: '4s',
-            animationDelay: '1s',
-          }}
-        >
-          ⛓️
-        </div>
+        {/* Floating skulls */}
+        {Array.from({ length: 8 }, (_, i) => (
+          <div
+            key={`skull-${i}`}
+            className="absolute text-2xl opacity-10 animate-pulse"
+            style={{
+              left: `${10 + (i * 12)}%`,
+              top: `${15 + (i * 8)}%`,
+              animationDelay: `${i * 0.5}s`,
+              animationDuration: '3s',
+              transform: `rotate(${Math.random() * 360}deg)`,
+            }}
+          >
+            💀
+          </div>
+        ))}
+        
+        {/* Floating chains */}
+        {Array.from({ length: 6 }, (_, i) => (
+          <div
+            key={`chain-${i}`}
+            className="absolute text-xl opacity-8 animate-bounce"
+            style={{
+              right: `${5 + (i * 15)}%`,
+              bottom: `${10 + (i * 12)}%`,
+              animationDelay: `${i * 0.7}s`,
+              animationDuration: '4s',
+            }}
+          >
+            ⛓️
+          </div>
+        ))}
+
+        {/* Floating orbs */}
+        {Array.from({ length: 12 }, (_, i) => (
+          <div
+            key={`orb-${i}`}
+            className="absolute w-3 h-3 rounded-full opacity-15"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              backgroundColor: i % 2 === 0 ? '#3B82F6' : '#EF4444',
+              animation: `float ${2 + Math.random() * 3}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`,
+            }}
+          />
+        ))}
       </div>
 
       <div className="w-full max-w-3xl space-y-4 md:space-y-6 p-4 rounded-3xl backdrop-blur-sm relative z-10">
@@ -148,6 +174,13 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
           <p>Built for the Silly Sh!t Challenge</p>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-15px) rotate(180deg); }
+        }
+      `}</style>
     </div>
   );
 };

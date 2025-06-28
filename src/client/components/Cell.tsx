@@ -23,13 +23,22 @@ export const Cell: React.FC<CellProps> = ({
 }) => {
   const isNearCritical = cell.count >= cell.criticalMass - 1 && cell.count > 0;
 
-  // Obstacle styling
+  // Perfect obstacle styling for the game theme
   if (cell.isObstacle) {
     return (
-      <div className="relative flex items-center justify-center aspect-square rounded-xl border-2 border-gray-600 bg-gray-800">
-        <div className="text-2xl">🚫</div>
-        <div className="absolute inset-0 bg-red-500/20 rounded-xl"></div>
-        <div className="absolute bottom-1 right-1 text-xs text-red-400 font-bold">X</div>
+      <div className="relative flex items-center justify-center aspect-square rounded-xl border-2 border-red-600 bg-gradient-to-br from-gray-900 via-red-900/30 to-gray-900 overflow-hidden">
+        {/* Skull obstacle icon */}
+        <div className="text-3xl animate-pulse">💀</div>
+        
+        {/* Danger stripes */}
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-red-500/20 to-transparent"></div>
+        
+        {/* Corner chains */}
+        <div className="absolute top-1 left-1 text-xs text-red-400">⛓️</div>
+        <div className="absolute bottom-1 right-1 text-xs text-red-400">⛓️</div>
+        
+        {/* Danger indicator */}
+        <div className="absolute bottom-1 left-1 text-xs text-red-500 font-bold">X</div>
       </div>
     );
   }
