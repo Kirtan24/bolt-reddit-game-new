@@ -158,9 +158,23 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           Close
         </button>
 
-        {/* Footer Slogan */}
-        <div className="mt-3 text-xs text-yellow-400/80 z-10">
-          Chain it. Break it. Rule it.
+        {/* Footer Slogan & Attribution */}
+        <div className="mt-4 space-y-1 z-10">
+          <div className="text-xs text-yellow-400/80">
+            Chain it. Break it. Rule it.
+          </div>
+          <div className="flex items-center justify-center space-x-1 text-xs text-blue-400/70">
+            <span>⚡</span>
+            <a 
+              href="https://bolt.new" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-blue-300 transition-colors"
+            >
+              Built with Bolt.new
+            </a>
+            <span>⚡</span>
+          </div>
         </div>
       </div>
     </div>

@@ -141,9 +141,23 @@ export const GameModeSelector: React.FC<GameModeSelectorProps> = ({
           {randomTip}
         </div>
 
-        {/* Simple footer */}
-        <div className="text-center text-xs text-gray-500 mt-4">
-          <p>Built for the Silly Sh!t Challenge</p>
+        {/* Attribution Footer */}
+        <div className="text-center space-y-2 mt-6">
+          <div className="text-xs text-gray-500">
+            <p>Built for the Silly Sh!t Challenge</p>
+          </div>
+          <div className="flex items-center justify-center space-x-2 text-xs text-blue-400">
+            <span>⚡</span>
+            <a 
+              href="https://bolt.new" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-blue-300 transition-colors font-medium"
+            >
+              Built with Bolt.new
+            </a>
+            <span>⚡</span>
+          </div>
         </div>
       </div>
 

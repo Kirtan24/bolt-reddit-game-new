@@ -59,6 +59,10 @@ export const Preview: Devvit.BlockComponent<{ text?: string }> = ({ text = 'Load
         <text size="small" color="#888888">
           Built for the Silly Sh!t Challenge
         </text>
+        <spacer size="xsmall" />
+        <text size="xsmall" color="#4a90e2">
+          ⚡ Built with Bolt.new ⚡
+        </text>
       </vstack>
     </zstack>
   );

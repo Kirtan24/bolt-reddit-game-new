@@ -1,6 +1,6 @@
 # 💀 Spread 'Til Dead - Chain it. Break it. Rule it. ⛓️
 
-A hilariously chaotic strategic orb placement game built with Bolt x Devvit for Reddit's **Silly Sh!t Challenge**! 
+A hilariously chaotic strategic orb placement game built with **Bolt.new** x Devvit for Reddit's **Silly Sh!t Challenge**! 
 
 ## 🎮 About
 
@@ -110,11 +110,15 @@ This project embraces the **Silly Sh!t Challenge** spirit with:
 4. **Maximum Emojis**: Every text has emojis because why use words when you can use pictures?
 5. **Gloriously Impractical**: Serves no real purpose but brings maximum joy
 
+## ⚡ Built with Bolt.new
+
+This entire project was created using **[Bolt.new](https://bolt.new)** - the AI-powered full-stack web development platform that makes building complex applications incredibly fast and fun!
+
 ## 📜 License
 
 BSD-3-Clause
 
 ---
 
-💀 **Built with Bolt x Devvit for the Silly Sh!t Challenge** ⛓️  
+💀 **Built with [Bolt.new](https://bolt.new) x Devvit for the Silly Sh!t Challenge** ⛓️  
 *Chain it. Break it. Rule it.*

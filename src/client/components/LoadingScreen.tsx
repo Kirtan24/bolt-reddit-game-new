@@ -150,6 +150,25 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete 
             />
           ))}
         </div>
+
+        {/* Attribution */}
+        <div className="mt-8 space-y-2">
+          <div className="text-xs text-gray-500">
+            Built for the Silly Sh!t Challenge
+          </div>
+          <div className="flex items-center justify-center space-x-2 text-xs text-blue-400/70">
+            <span>⚡</span>
+            <a 
+              href="https://bolt.new" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-blue-300 transition-colors"
+            >
+              Built with Bolt.new
+            </a>
+            <span>⚡</span>
+          </div>
+        </div>
       </div>
 
       {/* Floating animation keyframes */}
