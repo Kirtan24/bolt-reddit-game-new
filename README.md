@@ -2,6 +2,9 @@
 
 A hilariously chaotic strategic orb placement game built with **Bolt.new** x Devvit for Reddit's **Silly Sh!t Challenge**! 
 
+▶️ **Play now on Reddit:**  
+**https://www.reddit.com/r/SpreadTilDead/**
+
 ## 🎮 About
 
 **Spread 'Til Dead** is the most gloriously silly strategic game where you place orbs on a grid to trigger explosive chain reactions. Battle against an intelligent AI opponent across three difficulty levels. The goal? Spread your orbs wisely... or spread 'til dead! 💀
