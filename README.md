@@ -117,7 +117,6 @@ This project embraces the **Silly Sh!t Challenge** spirit with:
 
 This entire project was created using **[Bolt.new](https://bolt.new)** - the AI-powered full-stack web development platform that makes building complex applications incredibly fast and fun!
 
-
 ---
 
 💀 **Built with [Bolt.new](https://bolt.new) x Devvit for the Silly Sh!t Challenge** ⛓️  
